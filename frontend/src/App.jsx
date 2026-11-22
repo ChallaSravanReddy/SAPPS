@@ -2,41 +2,22 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import FacultyDashboard from './pages/FacultyDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import BatchUpload from './pages/BatchUpload';
 
-function RootRedirect() {
-  const token = localStorage.getItem('sapps_token');
-  const userJson = localStorage.getItem('sapps_user');
-
-  if (!token || !userJson) {
-    return <Navigate to="/login" replace />;
-  }
-
-  try {
-    const user = JSON.parse(userJson);
-    if (user.role === 'ADMIN') return <Navigate to="/admin" replace />;
-    if (user.role === 'FACULTY') return <Navigate to="/faculty" replace />;
-    if (user.role === 'STUDENT') return <Navigate to="/student" replace />;
-  } catch (e) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <Navigate to="/login" replace />;
-}
-
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+
         {/* Public Login Route */}
         <Route path="/login" element={<Login />} />
-
-        {/* Root Redirect based on user credentials */}
-        <Route path="/" element={<RootRedirect />} />
 
         {/* Protected Admin View */}
         <Route
@@ -86,9 +67,10 @@ export default function App() {
           }
         />
 
-        {/* Fallback to root */}
+        {/* Fallback to landing page */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
+

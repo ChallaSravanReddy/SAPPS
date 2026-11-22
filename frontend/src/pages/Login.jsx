@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { GraduationCap, ShieldAlert, Lock, Mail, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { GraduationCap, ShieldAlert, Lock, Mail, ArrowRight, Sparkles, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { authApi } from '../services/api';
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [email, setEmail] = useState('faculty@sapp.edu');
-  const [password, setPassword] = useState('Faculty@123');
+  const [email, setEmail] = useState(location.state?.prefillEmail || 'faculty@sapp.edu');
+  const [password, setPassword] = useState(location.state?.prefillPassword || 'Faculty@123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -97,6 +97,18 @@ export default function Login() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent blur-3xl pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="flex items-center justify-between px-4 mb-4">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Home</span>
+          </Link>
+          <span className="text-[11px] font-mono text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+            SAPPS AI
+          </span>
+        </div>
         <div className="flex justify-center">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-violet-500 flex items-center justify-center text-white shadow-xl shadow-indigo-500/30">
             <GraduationCap className="w-8 h-8" />
