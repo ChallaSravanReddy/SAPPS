@@ -151,17 +151,17 @@ export default function FacultyDashboard() {
   const lowRiskCount = students.filter((s) => s.latest_risk_tier === 'Low Risk').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-[#FFFFFF]">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#F7F5F2] p-6 rounded-2xl border border-[#E7E5E4] shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-600" />
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#B45309]" />
+            <h1 className="text-2xl font-bold text-[#111111] tracking-tight">
               Student Academic Performance Roster
             </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-[#57534E] mt-1">
             Real-time ML risk stratification, Explainable AI factor breakdown, and early academic intervention.
           </p>
         </div>
@@ -170,15 +170,15 @@ export default function FacultyDashboard() {
           <button
             onClick={handleExportCsv}
             disabled={students.length === 0}
-            className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs rounded-xl border border-slate-300 transition-colors shadow-xs disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#FFFFFF] hover:bg-[#F7F5F2] text-[#111111] font-semibold text-xs rounded-xl border border-[#E7E5E4] transition-colors shadow-xs disabled:opacity-50"
             title="Download current roster and prediction results as CSV"
           >
-            <Download className="w-4 h-4 text-slate-600" />
+            <Download className="w-4 h-4 text-[#57534E]" />
             <span>Export Roster CSV</span>
           </button>
           <Link
             to="/batch-upload"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs rounded-xl border border-indigo-200 transition-colors shadow-xs"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#B45309] text-white hover:bg-[#8B5A2B] font-semibold text-xs rounded-xl shadow-xs transition-colors"
           >
             <UploadCloud className="w-4 h-4" />
             <span>Upload Batch CSV</span>
@@ -188,52 +188,52 @@ export default function FacultyDashboard() {
 
       {/* Cohort Quick Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="bg-[#F7F5F2] p-4 rounded-xl border border-[#E7E5E4] shadow-xs">
+          <span className="text-xs font-semibold text-[#57534E] uppercase tracking-wider">
             Total Students
           </span>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1">{students.length}</p>
+          <p className="text-2xl font-extrabold text-[#111111] mt-1">{students.length}</p>
         </div>
-        <div className="bg-rose-50/60 p-4 rounded-xl border border-rose-200/80 shadow-xs">
-          <span className="text-xs font-semibold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
-            <AlertCircle className="w-3.5 h-3.5" /> High Risk Alert
+        <div className="bg-rose-50/70 p-4 rounded-xl border border-rose-200 shadow-xs">
+          <span className="text-xs font-semibold text-rose-800 uppercase tracking-wider flex items-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 text-rose-600" /> High Risk Alert
           </span>
-          <p className="text-2xl font-extrabold text-rose-800 mt-1">{highRiskCount}</p>
+          <p className="text-2xl font-extrabold text-rose-900 mt-1">{highRiskCount}</p>
         </div>
-        <div className="bg-amber-50/60 p-4 rounded-xl border border-amber-200/80 shadow-xs">
-          <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
+        <div className="bg-amber-50/70 p-4 rounded-xl border border-amber-300 shadow-xs">
+          <span className="text-xs font-semibold text-[#B45309] uppercase tracking-wider">
             Moderate Risk
           </span>
-          <p className="text-2xl font-extrabold text-amber-800 mt-1">{modRiskCount}</p>
+          <p className="text-2xl font-extrabold text-[#B45309] mt-1">{modRiskCount}</p>
         </div>
-        <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200/80 shadow-xs">
-          <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
+        <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200 shadow-xs">
+          <span className="text-xs font-semibold text-emerald-800 uppercase tracking-wider">
             Low Risk (Safe)
           </span>
-          <p className="text-2xl font-extrabold text-emerald-800 mt-1">{lowRiskCount}</p>
+          <p className="text-2xl font-extrabold text-emerald-900 mt-1">{lowRiskCount}</p>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="bg-[#F7F5F2] p-4 rounded-xl border border-[#E7E5E4] shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-3 text-[#57534E]" />
           <input
             type="text"
             placeholder="Search by student name or roll #..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-900 placeholder:text-slate-400 bg-white"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-[#E7E5E4] rounded-xl focus:ring-2 focus:ring-[#B45309] focus:border-[#B45309] text-[#111111] placeholder:text-[#57534E] bg-[#FFFFFF]"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-semibold text-slate-500 uppercase">Risk Tier:</span>
+          <Filter className="w-4 h-4 text-[#57534E]" />
+          <span className="text-xs font-bold text-[#57534E] uppercase">Risk Tier:</span>
           <select
             value={riskFilter}
             onChange={(e) => setRiskFilter(e.target.value)}
-            className="px-3 py-1.5 text-xs font-medium border border-slate-300 rounded-lg text-slate-700 bg-white focus:ring-2 focus:ring-indigo-500"
+            className="px-3 py-1.5 text-xs font-medium border border-[#E7E5E4] rounded-xl text-[#111111] bg-[#FFFFFF] focus:ring-2 focus:ring-[#B45309]"
           >
             <option value="">All Categories</option>
             <option value="High Risk">High Risk Only</option>
@@ -245,10 +245,10 @@ export default function FacultyDashboard() {
       </div>
 
       {/* Students Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-[#FFFFFF] rounded-2xl border border-[#E7E5E4] shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-            <thead className="bg-slate-50/75 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <table className="min-w-full divide-y divide-[#E7E5E4] text-left text-sm">
+            <thead className="bg-[#F7F5F2] text-xs font-bold uppercase tracking-wider text-[#57534E]">
               <tr>
                 <th scope="col" className="px-6 py-3.5">Roll Number</th>
                 <th scope="col" className="px-6 py-3.5">Student Name</th>
@@ -260,19 +260,19 @@ export default function FacultyDashboard() {
                 <th scope="col" className="px-6 py-3.5 text-right">Intervention Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
+            <tbody className="divide-y divide-[#E7E5E4] bg-[#FFFFFF]">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-12 text-center text-slate-500">
-                    <div className="inline-flex items-center gap-2 text-indigo-600 font-medium">
-                      <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                  <td colSpan="8" className="px-6 py-12 text-center text-[#57534E]">
+                    <div className="inline-flex items-center gap-2 text-[#B45309] font-medium">
+                      <div className="w-4 h-4 border-2 border-[#B45309] border-t-transparent rounded-full animate-spin" />
                       Loading student roster...
                     </div>
                   </td>
                 </tr>
               ) : students.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-12 text-center text-slate-400 text-sm">
+                  <td colSpan="8" className="px-6 py-12 text-center text-[#57534E] text-sm">
                     No students match the current filters.
                   </td>
                 </tr>
@@ -280,45 +280,45 @@ export default function FacultyDashboard() {
                 students.map((student) => (
                   <tr
                     key={student.id}
-                    className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    className="hover:bg-[#F7F5F2]/80 transition-colors cursor-pointer group"
                     onClick={() => handleViewDetails(student)}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap font-mono font-semibold text-indigo-600 text-xs">
+                    <td className="px-6 py-4 whitespace-nowrap font-mono font-bold text-[#B45309] text-xs">
                       {student.roll_number}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-900">
+                    <td className="px-6 py-4 whitespace-nowrap font-medium text-[#111111]">
                       {student.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-slate-600 text-xs">
+                    <td className="px-6 py-4 whitespace-nowrap text-[#57534E] text-xs">
                       {student.department}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-slate-700 font-medium text-xs">
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-[#111111] font-medium text-xs">
                       Sem {student.current_semester}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center text-xs">
                       {student.latest_attendance !== null && student.latest_attendance !== undefined ? (
                         <span
                           className={`font-semibold ${
-                            student.latest_attendance < 75 ? 'text-rose-600 font-bold' : 'text-slate-800'
+                            student.latest_attendance < 75 ? 'text-rose-700 font-bold' : 'text-[#111111]'
                           }`}
                         >
                           {student.latest_attendance}%
                         </span>
                       ) : (
-                        <span className="text-slate-400">—</span>
+                        <span className="text-[#57534E]">—</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center text-xs">
                       {student.latest_internals !== null && student.latest_internals !== undefined ? (
                         <span
                           className={`font-semibold ${
-                            student.latest_internals < 50 ? 'text-rose-600 font-bold' : 'text-slate-800'
+                            student.latest_internals < 50 ? 'text-rose-700 font-bold' : 'text-[#111111]'
                           }`}
                         >
                           {student.latest_internals}/100
                         </span>
                       ) : (
-                        <span className="text-slate-400">—</span>
+                        <span className="text-[#57534E]">—</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -333,7 +333,7 @@ export default function FacultyDashboard() {
                         <button
                           onClick={(e) => handleRunPrediction(student.id, e)}
                           disabled={predictingId === student.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow-xs transition-all disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#B45309] hover:bg-[#8B5A2B] text-white rounded-xl font-bold shadow-xs transition-all disabled:opacity-50"
                           title="Run real-time inference on this student"
                         >
                           {predictingId === student.id ? (
@@ -346,7 +346,7 @@ export default function FacultyDashboard() {
 
                         <button
                           onClick={() => handleViewDetails(student)}
-                          className="px-2.5 py-1.5 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 rounded-lg transition-colors font-medium"
+                          className="px-2.5 py-1.5 text-[#57534E] hover:text-[#B45309] hover:bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl transition-colors font-semibold"
                           title="View XAI Attribution & Interventions"
                         >
                           Explain AI
@@ -363,26 +363,26 @@ export default function FacultyDashboard() {
 
       {/* XAI & RECOMMENDATIONS MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111111]/60 backdrop-blur-xs overflow-y-auto">
+          <div className="bg-[#FFFFFF] w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E7E5E4] overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+            <div className="px-6 py-4 border-b border-[#E7E5E4] flex items-center justify-between bg-[#F7F5F2]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-[#B45309] text-white flex items-center justify-center shadow-xs">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">
+                  <h3 className="text-lg font-bold text-[#111111]">
                     Explainable AI (XAI) Assessment Report
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#57534E]">
                     Model: {selectedPrediction?.model_version || 'Random Forest Classifier (Optimized)'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-200/60 transition-colors"
+                className="p-1.5 text-[#57534E] hover:text-[#111111] rounded-lg hover:bg-[#E7E5E4] transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -390,24 +390,24 @@ export default function FacultyDashboard() {
 
             {/* Modal Content */}
             {modalLoading ? (
-              <div className="p-12 text-center text-slate-500 flex flex-col items-center justify-center gap-3">
-                <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              <div className="p-12 text-center text-[#57534E] flex flex-col items-center justify-center gap-3">
+                <div className="w-8 h-8 border-3 border-[#B45309] border-t-transparent rounded-full animate-spin" />
                 <span className="text-sm font-medium">Computing XAI Attributions & Interventions...</span>
               </div>
             ) : selectedPrediction ? (
               <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
                 {/* Student Overview Strip */}
-                <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#F7F5F2] border border-[#E7E5E4]">
                   <div>
-                    <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Student</span>
-                    <h4 className="text-base font-bold text-slate-900">{selectedPrediction.student_name}</h4>
-                    <p className="text-xs text-slate-600 font-mono mt-0.5">
+                    <span className="text-xs text-[#57534E] uppercase tracking-wider font-bold">Student</span>
+                    <h4 className="text-base font-bold text-[#111111]">{selectedPrediction.student_name}</h4>
+                    <p className="text-xs text-[#57534E] font-mono mt-0.5">
                       {selectedPrediction.roll_number} • {selectedPrediction.department} (Sem {selectedPrediction.semester})
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <span className="text-xs text-slate-500 font-medium block">Risk Classification</span>
+                      <span className="text-xs text-[#57534E] font-medium block">Risk Classification</span>
                       <RiskBadge
                         riskTier={selectedPrediction.risk_tier}
                         confidence={selectedPrediction.confidence_score}
@@ -420,37 +420,37 @@ export default function FacultyDashboard() {
                 {/* Academic Snapshot Metrics */}
                 {selectedPrediction.academic_snapshot && (
                   <div>
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#57534E] mb-2">
                       Academic Assessment Metrics Snapshot
                     </h4>
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
-                      <div className="p-2.5 rounded-lg border border-slate-200 bg-white">
-                        <span className="text-[11px] text-slate-500 block">Attendance</span>
-                        <strong className="text-sm text-slate-800">
+                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                        <span className="text-[11px] text-[#57534E] block">Attendance</span>
+                        <strong className="text-sm text-[#111111]">
                           {selectedPrediction.academic_snapshot.attendance_percentage}%
                         </strong>
                       </div>
-                      <div className="p-2.5 rounded-lg border border-slate-200 bg-white">
-                        <span className="text-[11px] text-slate-500 block">Internal Marks</span>
-                        <strong className="text-sm text-slate-800">
+                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                        <span className="text-[11px] text-[#57534E] block">Internal Marks</span>
+                        <strong className="text-sm text-[#111111]">
                           {selectedPrediction.academic_snapshot.internal_test_marks}/100
                         </strong>
                       </div>
-                      <div className="p-2.5 rounded-lg border border-slate-200 bg-white">
-                        <span className="text-[11px] text-slate-500 block">Assignment</span>
-                        <strong className="text-sm text-slate-800">
+                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                        <span className="text-[11px] text-[#57534E] block">Assignment</span>
+                        <strong className="text-sm text-[#111111]">
                           {selectedPrediction.academic_snapshot.assignment_score}/100
                         </strong>
                       </div>
-                      <div className="p-2.5 rounded-lg border border-slate-200 bg-white">
-                        <span className="text-[11px] text-slate-500 block">Quiz Score</span>
-                        <strong className="text-sm text-slate-800">
+                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                        <span className="text-[11px] text-[#57534E] block">Quiz Score</span>
+                        <strong className="text-sm text-[#111111]">
                           {selectedPrediction.academic_snapshot.quiz_score}/100
                         </strong>
                       </div>
-                      <div className="p-2.5 rounded-lg border border-slate-200 bg-white col-span-2 sm:col-span-1">
-                        <span className="text-[11px] text-slate-500 block">Prior GPA</span>
-                        <strong className="text-sm text-slate-800">
+                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF] col-span-2 sm:col-span-1">
+                        <span className="text-[11px] text-[#57534E] block">Prior GPA</span>
+                        <strong className="text-sm text-[#111111]">
                           {selectedPrediction.academic_snapshot.prev_semester_gpa}/10.0
                         </strong>
                       </div>
@@ -461,10 +461,10 @@ export default function FacultyDashboard() {
                 {/* Feature Importance & Contribution Chart */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#57534E]">
                       Feature Contribution to Risk Prediction (% Weight)
                     </h4>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] text-[#57534E]">
                       Standard Benchmarks: Attendance &ge; 75%, Internals &ge; 50
                     </span>
                   </div>
@@ -472,10 +472,10 @@ export default function FacultyDashboard() {
                 </div>
 
                 {/* Prescriptive Interventions */}
-                <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-100">
+                <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200">
                   <div className="flex items-center gap-2 mb-3">
-                    <Lightbulb className="w-4 h-4 text-indigo-600" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-900">
+                    <Lightbulb className="w-4 h-4 text-[#B45309]" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#B45309]">
                       Tailored Academic Interventions (Faculty Action Plan)
                     </h4>
                   </div>
@@ -483,13 +483,13 @@ export default function FacultyDashboard() {
                     {selectedPrediction.actionable_recommendations &&
                     selectedPrediction.actionable_recommendations.length > 0 ? (
                       selectedPrediction.actionable_recommendations.map((rec, i) => (
-                        <div key={i} className="flex items-start gap-2.5 text-xs text-indigo-950 bg-white/90 p-3 rounded-lg border border-indigo-100 shadow-2xs">
-                          <CheckCircle2 className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
+                        <div key={i} className="flex items-start gap-2.5 text-xs text-[#111111] bg-white p-3 rounded-xl border border-amber-100 shadow-2xs">
+                          <CheckCircle2 className="w-4 h-4 text-[#B45309] flex-shrink-0 mt-0.5" />
                           <span className="leading-relaxed">{rec}</span>
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-slate-500">No specific interventions generated.</p>
+                      <p className="text-xs text-[#57534E]">No specific interventions generated.</p>
                     )}
                   </div>
                 </div>
@@ -497,10 +497,10 @@ export default function FacultyDashboard() {
             ) : null}
 
             {/* Modal Footer */}
-            <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex justify-end">
+            <div className="px-6 py-3.5 bg-[#F7F5F2] border-t border-[#E7E5E4] flex justify-end">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900 rounded-lg transition-colors"
+                className="px-4 py-2 text-xs font-bold bg-[#111111] text-white hover:bg-[#222222] rounded-xl transition-colors"
               >
                 Close Report
               </button>
@@ -511,4 +511,3 @@ export default function FacultyDashboard() {
     </div>
   );
 }
-

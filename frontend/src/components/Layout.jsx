@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   GraduationCap,
   LayoutDashboard,
@@ -58,36 +58,36 @@ export default function Layout({ children }) {
   const getRoleBadge = (role) => {
     switch (role) {
       case 'ADMIN':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
+        return 'bg-[#F7F5F2] text-[#111111] border-[#E7E5E4]';
       case 'FACULTY':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-amber-50 text-[#B45309] border-amber-200';
       case 'STUDENT':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-[#F7F5F2] text-[#57534E] border-[#E7E5E4]';
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 font-sans">
+    <div className="min-h-screen flex flex-col bg-[#FFFFFF] text-[#111111] font-sans">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+      <header className="sticky top-0 z-40 bg-[#FFFFFF]/95 backdrop-blur-md border-b border-[#E7E5E4] shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Brand */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-10 h-10 rounded-xl bg-[#B45309] flex items-center justify-center text-white shadow-sm shadow-[#B45309]/20 group-hover:bg-[#8B5A2B] transition-colors">
                 <GraduationCap className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-700 to-violet-600 bg-clip-text text-transparent">
+                <span className="text-xl font-bold tracking-tight text-[#111111]">
                   SAPPS
                 </span>
-                <span className="hidden sm:inline-block ml-2 text-xs font-medium text-slate-500 border-l border-slate-300 pl-2">
+                <span className="hidden sm:inline-block ml-2 text-xs font-medium text-[#57534E] border-l border-[#E7E5E4] pl-2">
                   Academic Performance Prediction
                 </span>
               </div>
-            </div>
+            </Link>
 
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-1">
@@ -98,10 +98,10 @@ export default function Layout({ children }) {
                     key={link.to}
                     to={link.to}
                     className={({ isActive }) =>
-                      `flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      `flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
                         isActive
-                          ? 'bg-indigo-50 text-indigo-700 font-semibold'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                          ? 'bg-[#F7F5F2] text-[#B45309] font-bold border border-[#E7E5E4]'
+                          : 'text-[#57534E] hover:text-[#111111] hover:bg-[#F7F5F2]'
                       }`
                     }
                   >
@@ -115,9 +115,9 @@ export default function Layout({ children }) {
             {/* User Profile & Logout */}
             <div className="hidden md:flex items-center gap-3">
               {user && (
-                <div className="flex items-center gap-2 text-sm bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-semibold text-slate-800">{user.name || user.email}</span>
+                <div className="flex items-center gap-2 text-sm bg-[#F7F5F2] border border-[#E7E5E4] px-3 py-1.5 rounded-full">
+                  <span className="w-2 h-2 rounded-full bg-[#B45309]" />
+                  <span className="font-semibold text-[#111111]">{user.name || user.email}</span>
                   <span
                     className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${getRoleBadge(
                       user.role
@@ -129,7 +129,7 @@ export default function Layout({ children }) {
               )}
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-lg transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#57534E] hover:text-[#B45309] hover:bg-[#F7F5F2] border border-[#E7E5E4] rounded-lg transition-all"
                 title="Log out"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -141,7 +141,7 @@ export default function Layout({ children }) {
             <div className="md:hidden flex items-center gap-2">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                className="p-2 rounded-lg text-[#57534E] hover:text-[#111111] hover:bg-[#F7F5F2]"
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -151,7 +151,7 @@ export default function Layout({ children }) {
 
         {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-2">
+          <div className="md:hidden border-t border-[#E7E5E4] bg-[#FFFFFF] px-4 pt-2 pb-4 space-y-2">
             {navLinks.map((link) => {
               const Icon = link.icon;
               return (
@@ -162,8 +162,8 @@ export default function Layout({ children }) {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium ${
                       isActive
-                        ? 'bg-indigo-50 text-indigo-700 font-semibold'
-                        : 'text-slate-600 hover:bg-slate-100'
+                        ? 'bg-[#F7F5F2] text-[#B45309] font-bold border border-[#E7E5E4]'
+                        : 'text-[#57534E] hover:bg-[#F7F5F2]'
                     }`
                   }
                 >
@@ -172,16 +172,16 @@ export default function Layout({ children }) {
                 </NavLink>
               );
             })}
-            <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
+            <div className="pt-3 border-t border-[#E7E5E4] flex items-center justify-between">
               {user && (
-                <span className="text-xs text-slate-600">
-                  Signed in as <strong className="text-slate-800">{user.email}</strong> (
+                <span className="text-xs text-[#57534E]">
+                  Signed in as <strong className="text-[#111111]">{user.email}</strong> (
                   {user.role})
                 </span>
               )}
               <button
                 onClick={handleLogout}
-                className="text-xs text-rose-600 font-semibold hover:underline flex items-center gap-1"
+                className="text-xs text-[#B45309] font-semibold hover:underline flex items-center gap-1"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 Logout
@@ -192,19 +192,19 @@ export default function Layout({ children }) {
       </header>
 
       {/* Main Page Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#FFFFFF]">
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <footer className="bg-[#F7F5F2] border-t border-[#E7E5E4] py-4 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[#57534E] gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-700">SAPPS v1.0</span>
+            <span className="font-semibold text-[#111111]">SAPPS v1.0</span>
             <span>•</span>
-            <span className="flex items-center gap-1 text-indigo-600 font-medium">
+            <span className="flex items-center gap-1 text-[#B45309] font-medium">
               <Sparkles className="w-3.5 h-3.5" />
-              Explainable AI (Random Forest + Feature Attribution)
+              Explainable AI (Random Forest Architecture)
             </span>
           </div>
           <div>Strict Data Isolation • Early Academic Risk Intervention System</div>
@@ -213,4 +213,3 @@ export default function Layout({ children }) {
     </div>
   );
 }
-

@@ -6,26 +6,26 @@ export default function RiskBadge({ riskTier, confidence, size = 'md' }) {
 
   const configs = {
     'High Risk': {
-      bg: 'bg-rose-50 text-rose-700 border-rose-200 ring-rose-500/20',
-      dot: 'bg-rose-500',
+      bg: 'bg-rose-50 text-rose-800 border-rose-200 ring-rose-500/20',
+      dot: 'bg-rose-600',
       icon: AlertCircle,
       label: 'High Risk',
     },
     'Moderate Risk': {
-      bg: 'bg-amber-50 text-amber-700 border-amber-200 ring-amber-500/20',
-      dot: 'bg-amber-500',
+      bg: 'bg-amber-50 text-amber-900 border-amber-300 ring-amber-600/20',
+      dot: 'bg-[#B45309]',
       icon: AlertTriangle,
       label: 'Moderate Risk',
     },
     'Low Risk': {
-      bg: 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-emerald-500/20',
-      dot: 'bg-emerald-500',
+      bg: 'bg-emerald-50 text-emerald-800 border-emerald-200 ring-emerald-600/20',
+      dot: 'bg-emerald-600',
       icon: CheckCircle,
       label: 'Low Risk',
     },
     'Unpredicted': {
-      bg: 'bg-slate-100 text-slate-600 border-slate-200 ring-slate-400/20',
-      dot: 'bg-slate-400',
+      bg: 'bg-[#F7F5F2] text-[#57534E] border-[#E7E5E4] ring-stone-300/20',
+      dot: 'bg-[#57534E]',
       icon: HelpCircle,
       label: 'Unpredicted',
     },
@@ -54,4 +54,3 @@ export default function RiskBadge({ riskTier, confidence, size = 'md' }) {
     </span>
   );
 }
-
