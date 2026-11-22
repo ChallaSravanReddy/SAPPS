@@ -98,6 +98,10 @@ export const predictionsApi = {
     const response = await apiClient.get(`/predictions/student/${studentId}`);
     return response.data;
   },
+  simulate: async (simulationFeatures) => {
+    const response = await apiClient.post('/predictions/simulate', simulationFeatures);
+    return response.data;
+  },
 };
 
 export const analyticsApi = {

@@ -44,6 +44,24 @@ class PredictionRecordResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class SimulationRequest(BaseModel):
+    attendance_percentage: float = Field(..., ge=0.0, le=100.0)
+    internal_test_marks: float = Field(..., ge=0.0, le=100.0)
+    assignment_score: float = Field(..., ge=0.0, le=100.0)
+    quiz_score: float = Field(..., ge=0.0, le=100.0)
+    prev_semester_gpa: float = Field(..., ge=0.0, le=10.0)
+
+
+class SimulationResponse(BaseModel):
+    risk_tier: str
+    confidence_score: float
+    probabilities: Dict[str, float]
+    top_negative_factors: List[FeatureAttributionItem]
+    actionable_recommendations: List[str]
+    model_version: str
+    inputs: Dict[str, float]
+
+
 class DashboardSummaryResponse(BaseModel):
     total_students: int
     total_assessments: int

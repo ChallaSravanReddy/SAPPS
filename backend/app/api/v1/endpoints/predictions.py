@@ -9,7 +9,12 @@ from app.models.user import User, UserRole
 from app.models.student import Student
 from app.models.academic import Assessment
 from app.models.prediction import PredictionRecord
-from app.schemas.prediction import PredictionResponse, PredictionRecordResponse
+from app.schemas.prediction import (
+    PredictionResponse,
+    PredictionRecordResponse,
+    SimulationRequest,
+    SimulationResponse,
+)
 from app.services.ml_engine import ml_engine
 from app.services.xai_explainer import compute_xai_and_recommendations
 
@@ -96,6 +101,32 @@ def evaluate_student_prediction(
         academic_snapshot=features,
         created_at=record.created_at
     )
+
+
+@router.post("/simulate", response_model=SimulationResponse)
+def simulate_academic_indicators(
+    sim_data: SimulationRequest,
+    current_user: User = Depends(require_roles([UserRole.ADMIN, UserRole.FACULTY, UserRole.STUDENT]))
+) -> Any:
+    """Simulates risk outcome for what-if academic scenarios without altering DB records."""
+    feats = {
+        "attendance_percentage": float(sim_data.attendance_percentage),
+        "internal_test_marks": float(sim_data.internal_test_marks),
+        "assignment_score": float(sim_data.assignment_score),
+        "quiz_score": float(sim_data.quiz_score),
+        "prev_semester_gpa": float(sim_data.prev_semester_gpa)
+    }
+    pred = ml_engine.predict(feats)
+    xai = compute_xai_and_recommendations(feats, pred["risk_tier"], pred["feature_importances"])
+    return {
+        "risk_tier": pred["risk_tier"],
+        "confidence_score": pred["confidence_score"],
+        "probabilities": pred["probabilities"],
+        "top_negative_factors": xai["top_negative_factors"],
+        "actionable_recommendations": xai["actionable_recommendations"],
+        "model_version": pred["model_version"],
+        "inputs": feats
+    }
 
 
 @router.get("/student/{student_id}", response_model=List[PredictionRecordResponse])

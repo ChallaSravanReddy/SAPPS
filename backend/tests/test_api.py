@@ -89,3 +89,43 @@ def test_evaluate_prediction():
     assert len(pred["top_negative_factors"]) == 5
     assert len(pred["actionable_recommendations"]) >= 2
 
+
+def test_student_self_profile():
+    login_res = client.post("/api/v1/auth/login", json={
+        "email": "student@sapp.edu",
+        "password": "Student@123"
+    })
+    assert login_res.status_code == 200
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    prof_res = client.get("/api/v1/students/me/profile", headers=headers)
+    assert prof_res.status_code == 200
+    data = prof_res.json()
+    assert "student" in data
+    assert data["student"]["roll_number"] == "2024CS1001"
+    assert "latest_prediction" in data
+    assert "assessments" in data
+
+
+def test_simulation_endpoint():
+    login_res = client.post("/api/v1/auth/login", json={
+        "email": "student@sapp.edu",
+        "password": "Student@123"
+    })
+    token = login_res.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    sim_res = client.post("/api/v1/predictions/simulate", headers=headers, json={
+        "attendance_percentage": 92.0,
+        "internal_test_marks": 88.0,
+        "assignment_score": 90.0,
+        "quiz_score": 85.0,
+        "prev_semester_gpa": 9.0
+    })
+    assert sim_res.status_code == 200
+    sim_data = sim_res.json()
+    assert sim_data["risk_tier"] == "Low Risk"
+    assert sim_data["confidence_score"] > 0.50
+    assert "probabilities" in sim_data
+

@@ -12,32 +12,98 @@ import {
   ArrowRight,
   ShieldCheck,
   Compass,
+  RefreshCw,
+  Sliders,
+  RotateCcw,
+  HelpCircle,
 } from 'lucide-react';
-import { studentsApi } from '../services/api';
+import { studentsApi, predictionsApi } from '../services/api';
 import RiskBadge from '../components/RiskBadge';
 import FeatureImportanceChart from '../components/FeatureImportanceChart';
 
 export default function StudentDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchSelfData = async () => {
-      try {
-        setLoading(true);
-        const res = await studentsApi.getMyProfile();
-        setData(res);
-      } catch (err) {
-        console.error('Failed to fetch student data:', err);
-        setError('Unable to load personal academic records. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // What-If Simulation State
+  const [simValues, setSimValues] = useState({
+    attendance_percentage: 75,
+    internal_test_marks: 60,
+    assignment_score: 70,
+    quiz_score: 70,
+    prev_semester_gpa: 6.5,
+  });
+  const [simResult, setSimResult] = useState(null);
+  const [simulating, setSimulating] = useState(false);
+  const [showSimulator, setShowSimulator] = useState(false);
 
+  const fetchSelfData = async (isManualRefresh = false) => {
+    try {
+      if (isManualRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError('');
+      const res = await studentsApi.getMyProfile();
+      setData(res);
+
+      // Preload current actuals into simulator
+      if (res.assessments && res.assessments.length > 0) {
+        const curr = res.assessments[0];
+        setSimValues({
+          attendance_percentage: Number(curr.attendance_percentage),
+          internal_test_marks: Number(curr.internal_test_marks),
+          assignment_score: Number(curr.assignment_score),
+          quiz_score: Number(curr.quiz_score),
+          prev_semester_gpa: Number(curr.prev_semester_gpa),
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch student data:', err);
+      setError('Unable to load personal academic records. Please ensure your account is linked to a valid student roll number.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchSelfData();
   }, []);
+
+  // Run simulation on demand or when sliders move
+  const runSimulation = async (customValues = null) => {
+    const payload = customValues || simValues;
+    try {
+      setSimulating(true);
+      const res = await predictionsApi.simulate(payload);
+      setSimResult(res);
+    } catch (err) {
+      console.error('Simulation error:', err);
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  const handleSliderChange = (field, value) => {
+    const updated = { ...simValues, [field]: Number(value) };
+    setSimValues(updated);
+  };
+
+  const handleResetSimulation = () => {
+    if (data?.assessments && data.assessments.length > 0) {
+      const curr = data.assessments[0];
+      const initial = {
+        attendance_percentage: Number(curr.attendance_percentage),
+        internal_test_marks: Number(curr.internal_test_marks),
+        assignment_score: Number(curr.assignment_score),
+        quiz_score: Number(curr.quiz_score),
+        prev_semester_gpa: Number(curr.prev_semester_gpa),
+      };
+      setSimValues(initial);
+      setSimResult(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -53,10 +119,18 @@ export default function StudentDashboard() {
   if (error || !data) {
     return (
       <div className="max-w-xl mx-auto py-12 px-4">
-        <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-3">
-          <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
-          <h3 className="text-base font-bold text-rose-900">Notice</h3>
-          <p className="text-xs text-rose-700">{error || 'No student profile linked.'}</p>
+        <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-4 shadow-sm">
+          <AlertCircle className="w-10 h-10 text-rose-500 mx-auto" />
+          <div>
+            <h3 className="text-base font-bold text-rose-900">Student Profile Issue</h3>
+            <p className="text-xs text-rose-700 mt-1">{error || 'No student profile record found.'}</p>
+          </div>
+          <button
+            onClick={() => fetchSelfData(true)}
+            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-xs"
+          >
+            Retry Connection
+          </button>
         </div>
       </div>
     );
@@ -82,12 +156,18 @@ export default function StudentDashboard() {
           accent: 'text-amber-700',
         };
       case 'High Risk':
-      default:
         return {
           title: 'Academic Support Action Required 🤝',
           text: 'We are here to support your success. Reaching out early to your professors for doubt clarification and boosting lecture attendance will quickly turn things around.',
           bg: 'bg-rose-500/10 border-rose-500/20 text-rose-900',
           accent: 'text-rose-700',
+        };
+      default:
+        return {
+          title: 'Continuous Assessment In Progress 📋',
+          text: 'Your semester records are being continuously gathered. Review your metrics below and plan your study milestones with your course mentors.',
+          bg: 'bg-indigo-50 border-indigo-200 text-indigo-900',
+          accent: 'text-indigo-700',
         };
     }
   };
@@ -116,13 +196,25 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          <div className="flex flex-col items-start sm:items-end">
-            <span className="text-xs text-indigo-200 font-medium mb-1">Performance Standing</span>
-            <RiskBadge
-              riskTier={latest_prediction?.risk_tier || 'Low Risk'}
-              confidence={latest_prediction?.confidence_score}
-              size="lg"
-            />
+          <div className="flex flex-col items-start sm:items-end gap-2">
+            <div className="text-right">
+              <span className="text-xs text-indigo-200 font-medium mb-1 block">
+                Current Performance Standing
+              </span>
+              <RiskBadge
+                riskTier={latest_prediction?.risk_tier || 'Unpredicted'}
+                confidence={latest_prediction?.confidence_score}
+                size="lg"
+              />
+            </div>
+            <button
+              onClick={() => fetchSelfData(true)}
+              disabled={refreshing}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold backdrop-blur-xs transition-colors border border-white/20"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+              <span>{refreshing ? 'Refreshing...' : 'Refresh Records'}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -139,11 +231,21 @@ export default function StudentDashboard() {
       </div>
 
       {/* Current Academic Indicators Cards */}
-      {latestAssess && (
+      {latestAssess ? (
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
-            Current Semester Assessment Snapshot (Semester {latestAssess.semester})
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+              Current Semester Assessment Snapshot (Semester {latestAssess.semester})
+            </h2>
+            <button
+              onClick={() => setShowSimulator(!showSimulator)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 transition-colors"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>{showSimulator ? 'Hide What-If Simulator' : 'Try What-If Simulator'}</span>
+            </button>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
               <span className="text-xs text-slate-500 font-medium block">Attendance</span>
@@ -207,6 +309,170 @@ export default function StudentDashboard() {
               <span className="text-[10px] text-slate-400 mt-1 block">Cumulative basis</span>
             </div>
           </div>
+        </div>
+      ) : (
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center shadow-xs">
+          <BookOpen className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+          <h3 className="text-sm font-bold text-slate-800">No Assessment Records Yet</h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Your course instructors haven't uploaded semester evaluation marks yet. Check back once mid-term evaluations are posted.
+          </p>
+        </div>
+      )}
+
+      {/* Interactive What-If Academic Scenario Simulator */}
+      {showSimulator && (
+        <div className="bg-white p-6 rounded-2xl border-2 border-indigo-200 shadow-lg space-y-5 animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md">
+                <Sliders className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Interactive "What-If" Academic Goal Simulator
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Adjust target metrics to simulate how improved attendance or quiz marks reduce your risk score.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleResetSimulation}
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset to Actuals</span>
+              </button>
+              <button
+                onClick={() => runSimulation()}
+                disabled={simulating}
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs transition-colors disabled:opacity-50"
+              >
+                {simulating ? (
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" />
+                )}
+                <span>Run Simulation</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Sliders Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span>Attendance Target</span>
+                <span className="text-indigo-600">{simValues.attendance_percentage}%</span>
+              </div>
+              <input
+                type="range"
+                min="30"
+                max="100"
+                step="1"
+                value={simValues.attendance_percentage}
+                onChange={(e) => handleSliderChange('attendance_percentage', e.target.value)}
+                className="w-full accent-indigo-600"
+              />
+              <span className="text-[10px] text-slate-400">Institutional requirement: 75%</span>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span>Internal Test Marks Target</span>
+                <span className="text-indigo-600">{simValues.internal_test_marks} / 100</span>
+              </div>
+              <input
+                type="range"
+                min="20"
+                max="100"
+                step="1"
+                value={simValues.internal_test_marks}
+                onChange={(e) => handleSliderChange('internal_test_marks', e.target.value)}
+                className="w-full accent-indigo-600"
+              />
+              <span className="text-[10px] text-slate-400">Passing baseline: 50/100</span>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span>Assignment Score Target</span>
+                <span className="text-indigo-600">{simValues.assignment_score} / 100</span>
+              </div>
+              <input
+                type="range"
+                min="20"
+                max="100"
+                step="1"
+                value={simValues.assignment_score}
+                onChange={(e) => handleSliderChange('assignment_score', e.target.value)}
+                className="w-full accent-indigo-600"
+              />
+              <span className="text-[10px] text-slate-400">Continuous coursework</span>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                <span>Quiz Performance Target</span>
+                <span className="text-indigo-600">{simValues.quiz_score} / 100</span>
+              </div>
+              <input
+                type="range"
+                min="20"
+                max="100"
+                step="1"
+                value={simValues.quiz_score}
+                onChange={(e) => handleSliderChange('quiz_score', e.target.value)}
+                className="w-full accent-indigo-600"
+              />
+              <span className="text-[10px] text-slate-400">Periodic module assessments</span>
+            </div>
+          </div>
+
+          {/* Simulation Output Card */}
+          {simResult && (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/90 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    Simulated Performance Standing
+                  </span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <RiskBadge
+                      riskTier={simResult.risk_tier}
+                      confidence={simResult.confidence_score}
+                      size="md"
+                    />
+                    <span className="text-xs text-slate-600">
+                      Model Confidence: <strong>{Math.round(simResult.confidence_score * 100)}%</strong>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right text-xs text-slate-500">
+                  <span>Model: </span>
+                  <span className="font-mono text-slate-700 font-medium">{simResult.model_version}</span>
+                </div>
+              </div>
+
+              {simResult.actionable_recommendations && (
+                <div className="space-y-1.5 pt-2 border-t border-slate-200/70">
+                  <span className="text-[11px] font-bold text-slate-700 block">
+                    Simulated Action Recommendations:
+                  </span>
+                  {simResult.actionable_recommendations.map((rec, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-xs text-slate-700">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                      <span>{rec}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -294,4 +560,3 @@ export default function StudentDashboard() {
     </div>
   );
 }
-

@@ -9,7 +9,16 @@ from app.models.user import User, UserRole
 from app.models.student import Student
 from app.models.academic import Assessment
 from app.models.prediction import PredictionRecord
-from app.schemas.student import StudentCreate, StudentResponse, StudentUpdate
+from app.schemas.student import (
+    StudentCreate,
+    StudentResponse,
+    StudentUpdate,
+    StudentProfileInfo,
+    StudentSelfProfileResponse,
+    StudentDetailResponse,
+)
+from app.services.ml_engine import ml_engine
+from app.services.xai_explainer import compute_xai_and_recommendations
 
 router = APIRouter()
 
@@ -135,7 +144,7 @@ def create_student(
     )
 
 
-@router.get("/me/profile")
+@router.get("/me/profile", response_model=StudentSelfProfileResponse)
 def get_student_self_profile(
     current_user: User = Depends(require_roles([UserRole.STUDENT])),
     db: Session = Depends(get_db)
@@ -150,11 +159,39 @@ def get_student_self_profile(
 
     assessments = db.query(Assessment).filter(
         Assessment.student_id == student.id
-    ).order_by(desc(Assessment.semester)).all()
+    ).order_by(desc(Assessment.semester), desc(Assessment.created_at)).all()
 
     latest_prediction = db.query(PredictionRecord).filter(
         PredictionRecord.student_id == student.id
     ).order_by(desc(PredictionRecord.created_at)).first()
+
+    # If student has assessment records but no prediction yet, run auto-inference
+    if not latest_prediction and assessments:
+        latest_assess = assessments[0]
+        feats = {
+            "attendance_percentage": float(latest_assess.attendance_percentage),
+            "internal_test_marks": float(latest_assess.internal_test_marks),
+            "assignment_score": float(latest_assess.assignment_score),
+            "quiz_score": float(latest_assess.quiz_score),
+            "prev_semester_gpa": float(latest_assess.prev_semester_gpa)
+        }
+        pred_res = ml_engine.predict(feats)
+        xai_res = compute_xai_and_recommendations(
+            features=feats,
+            risk_tier=pred_res["risk_tier"],
+            feature_importances=pred_res["feature_importances"]
+        )
+        latest_prediction = PredictionRecord(
+            student_id=student.id,
+            risk_tier=pred_res["risk_tier"],
+            confidence_score=pred_res["confidence_score"],
+            top_negative_factors=xai_res["top_negative_factors"],
+            actionable_recommendations=xai_res["actionable_recommendations"],
+            model_version=pred_res["model_version"]
+        )
+        db.add(latest_prediction)
+        db.commit()
+        db.refresh(latest_prediction)
 
     return {
         "student": {
@@ -163,14 +200,15 @@ def get_student_self_profile(
             "name": student.name,
             "department": student.department,
             "current_semester": student.current_semester,
-            "email": current_user.email
+            "email": current_user.email,
+            "user_id": student.user_id
         },
         "latest_prediction": latest_prediction,
         "assessments": assessments
     }
 
 
-@router.get("/{student_id}")
+@router.get("/{student_id}", response_model=StudentDetailResponse)
 def get_student_by_id(
     student_id: str,
     current_user: User = Depends(require_roles([UserRole.ADMIN, UserRole.FACULTY, UserRole.STUDENT])),
@@ -193,7 +231,7 @@ def get_student_by_id(
 
     assessments = db.query(Assessment).filter(
         Assessment.student_id == student.id
-    ).order_by(desc(Assessment.semester)).all()
+    ).order_by(desc(Assessment.semester), desc(Assessment.created_at)).all()
 
     predictions = db.query(PredictionRecord).filter(
         PredictionRecord.student_id == student.id

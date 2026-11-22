@@ -1,7 +1,9 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from app.models.user import UserRole
+from app.schemas.assessment import AssessmentResponse
+from app.schemas.prediction import PredictionRecordResponse
 
 
 # Authentication schemas
@@ -71,6 +73,34 @@ class FacultyResponse(BaseModel):
     user_id: str
     name: str
     department: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class StudentProfileInfo(BaseModel):
+    id: str
+    roll_number: str
+    name: str
+    department: str
+    current_semester: int
+    email: Optional[str] = None
+    user_id: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class StudentSelfProfileResponse(BaseModel):
+    student: StudentProfileInfo
+    latest_prediction: Optional[PredictionRecordResponse] = None
+    assessments: List[AssessmentResponse] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class StudentDetailResponse(BaseModel):
+    student: StudentProfileInfo
+    assessments: List[AssessmentResponse] = []
+    predictions: List[PredictionRecordResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
 
