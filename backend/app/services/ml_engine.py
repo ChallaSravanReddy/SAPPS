@@ -4,11 +4,19 @@ Loads the Random Forest classifier artifact and performs robust inference.
 """
 
 import os
+import warnings
 from typing import Dict, Any, List
 import joblib
 import numpy as np
 import pandas as pd
 from app.core.config import settings
+
+# Suppress minor scikit-learn version differences when unpickling across environments
+try:
+    from sklearn.exceptions import InconsistentVersionWarning
+    warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+except ImportError:
+    pass
 
 FEATURE_ORDER = [
     "attendance_percentage",
