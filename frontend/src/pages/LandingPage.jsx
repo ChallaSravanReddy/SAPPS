@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   GraduationCap,
   Sparkles,
@@ -17,6 +18,7 @@ import {
   Activity,
   Zap,
   ChevronRight,
+  ChevronDown,
   ExternalLink,
   Lock,
   Cpu,
@@ -47,6 +49,9 @@ export default function LandingPage() {
 
   // Dashboard Tab state: 'faculty' | 'student' | 'admin' | 'batch'
   const [activeTab, setActiveTab] = useState('faculty');
+
+  // FAQ Accordion open index
+  const [openFaq, setOpenFaq] = useState(null);
 
   // Interactive "What-If" Mini-Simulator state
   const [attendance, setAttendance] = useState(78);
@@ -88,7 +93,6 @@ export default function LandingPage() {
 
   const simResult = computeSimulation();
 
-  // Navigate to login or direct dashboard
   const handleLaunchApp = () => {
     if (currentUser) {
       if (currentUser.role === 'ADMIN') navigate('/admin');
@@ -100,21 +104,48 @@ export default function LandingPage() {
     }
   };
 
-  // Quick launch with specific demo account
   const handleDemoLogin = (email, password) => {
     navigate('/login', { state: { prefillEmail: email, prefillPassword: password } });
   };
 
+  const faqs = [
+    {
+      q: 'How does the Random Forest model avoid data leakage?',
+      a: 'Our machine learning pipeline uses continuous academic features measured strictly prior to the final exam cutoff. Target status is computed solely from final semester performance, while training features rely strictly on leading indicators (midterm attendance, continuous assessments, and historical GPA).',
+    },
+    {
+      q: 'Can our university upload custom grade sheets?',
+      a: 'Yes! The CSV Batch Ingestion engine allows faculty and registrars to drag and drop standard CSV exports from any LMS (Moodle, Blackboard, Canvas) and commit hundreds of student assessment records in a single click with client-side verification.',
+    },
+    {
+      q: 'How are the prescriptive interventions generated?',
+      a: 'The XAI service analyzes the feature attributions of the prediction. If low attendance is the top negative driver, it prescribes attendance tracking and mandatory lab makeup sessions. If internal marks are low, it generates study group and tutoring recommendations.',
+    },
+    {
+      q: 'Is student data isolated and secure?',
+      a: 'Absolutely. The platform enforces strict Role-Based Access Control (RBAC) backed by JWT bearer tokens and 72-byte safe bcrypt cryptography. Students only see their own performance, while professors only access their cohort.',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#111111] font-sans selection:bg-[#B45309] selection:text-white relative overflow-x-hidden">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#FFFFFF]/95 border-b border-[#E7E5E4] transition-all">
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="sticky top-0 z-50 backdrop-blur-xl bg-[#FFFFFF]/95 border-b border-[#E7E5E4] transition-all"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-11 h-11 rounded-xl bg-[#B45309] flex items-center justify-center text-white shadow-sm shadow-[#B45309]/20 group-hover:scale-105 transition-transform">
+            <motion.div
+              whileHover={{ rotate: 5, scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 400 }}
+              className="w-11 h-11 rounded-xl bg-[#B45309] flex items-center justify-center text-white shadow-sm shadow-[#B45309]/20"
+            >
               <GraduationCap className="w-6 h-6" />
-            </div>
+            </motion.div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-xl tracking-tight text-[#111111]">SAPPS</span>
@@ -160,13 +191,15 @@ export default function LandingPage() {
             </a>
 
             {currentUser ? (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={handleLaunchApp}
-                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] rounded-xl shadow-sm transition-all hover:scale-102"
+                className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] rounded-xl shadow-sm transition-all"
               >
                 <span>Dashboard ({currentUser.role})</span>
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </motion.button>
             ) : (
               <>
                 <Link
@@ -175,64 +208,95 @@ export default function LandingPage() {
                 >
                   Sign In
                 </Link>
-                <Link
-                  to="/login"
-                  className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] rounded-xl shadow-sm shadow-[#B45309]/20 transition-all hover:scale-102"
-                >
-                  <span>Launch Demo</span>
-                  <Sparkles className="w-3.5 h-3.5" />
-                </Link>
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] rounded-xl shadow-sm shadow-[#B45309]/20 transition-all"
+                  >
+                    <span>Launch Demo</span>
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </Link>
+                </motion.div>
               </>
             )}
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* Hero Section (Primary Background 60%: #FFFFFF, Accent 10%: #B45309) */}
+      {/* Hero Section */}
       <section className="relative z-10 pt-16 pb-20 md:pt-24 md:pb-28 bg-[#FFFFFF]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F7F5F2] border border-[#E7E5E4] text-[#B45309] text-xs font-bold mb-8">
-            <Sparkles className="w-3.5 h-3.5 text-[#B45309]" />
+          {/* Badge with motion entrance */}
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F7F5F2] border border-[#E7E5E4] text-[#B45309] text-xs font-bold mb-8"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#B45309] animate-pulse" />
             <span>AI-POWERED ACADEMIC RETENTION SYSTEM</span>
             <span className="w-1 h-1 rounded-full bg-[#B45309]" />
             <span className="text-[#57534E] font-medium">95.6% Predictive Accuracy</span>
-          </div>
+          </motion.div>
 
-          {/* Main Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#111111] max-w-5xl mx-auto leading-[1.12]">
+          {/* Main Headline with motion */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
+            className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#111111] max-w-5xl mx-auto leading-[1.12]"
+          >
             Predict Student Performance Before Semester Finals with{' '}
             <span className="text-[#B45309]">Explainable AI</span>
-          </h1>
+          </motion.h1>
 
           {/* Subtitle */}
-          <p className="mt-6 text-base sm:text-lg lg:text-xl text-[#57534E] max-w-3xl mx-auto font-normal leading-relaxed">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+            className="mt-6 text-base sm:text-lg lg:text-xl text-[#57534E] max-w-3xl mx-auto font-normal leading-relaxed"
+          >
             SAPPS replaces subjective end-of-term evaluations with real-time academic telemetry.
             Detect at-risk students weeks in advance, uncover mathematical feature drivers, and
             deploy prescriptive faculty interventions automatically.
-          </p>
+          </motion.p>
 
-          {/* CTA Buttons */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/login"
-              className="flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-sm text-white bg-[#B45309] hover:bg-[#8B5A2B] shadow-lg shadow-[#B45309]/20 transition-all hover:scale-105 active:scale-95"
-            >
-              <span>Explore Live Dashboards</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+          {/* CTA Buttons with motion */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="mt-10 flex flex-wrap items-center justify-center gap-4"
+          >
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+              <Link
+                to="/login"
+                className="flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-sm text-white bg-[#B45309] hover:bg-[#8B5A2B] shadow-lg shadow-[#B45309]/20 transition-all"
+              >
+                <span>Explore Live Dashboards</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
 
-            <a
+            <motion.a
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               href="#simulator"
-              className="flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-sm text-[#111111] bg-[#F7F5F2] hover:bg-[#FFFFFF] border border-[#E7E5E4] transition-all hover:scale-105"
+              className="flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-sm text-[#111111] bg-[#F7F5F2] hover:bg-[#FFFFFF] border border-[#E7E5E4] transition-all"
             >
               <Sliders className="w-4 h-4 text-[#B45309]" />
               <span>Try What-If Simulator</span>
-            </a>
-          </div>
+            </motion.a>
+          </motion.div>
 
           {/* Micro Social Proof / Tech Specs */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-y-3 gap-x-8 text-xs text-[#57534E] font-medium">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-12 flex flex-wrap items-center justify-center gap-y-3 gap-x-8 text-xs text-[#57534E] font-medium"
+          >
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#B45309]" />
               <span>Random Forest Ensemble</span>
@@ -249,10 +313,15 @@ export default function LandingPage() {
               <CheckCircle2 className="w-4 h-4 text-[#B45309]" />
               <span>Instant CSV Bulk Ingestion</span>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Hero Cockpit UI Mockup (Dark Section 30%: #111111 Canvas) */}
-          <div className="mt-14 relative mx-auto max-w-6xl">
+          {/* Hero Cockpit UI Mockup (Dark Section 30%: #111111) */}
+          <motion.div
+            initial={{ opacity: 0, y: 40, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.85, delay: 0.35, ease: 'easeOut' }}
+            className="mt-14 relative mx-auto max-w-6xl"
+          >
             <div className="relative rounded-2xl bg-[#111111] border border-[#E7E5E4] shadow-2xl overflow-hidden text-left">
               {/* Window Controls Header */}
               <div className="h-11 px-5 border-b border-stone-800 flex items-center justify-between bg-[#191919]">
@@ -288,7 +357,11 @@ export default function LandingPage() {
 
                   {/* Simulated Student Rows */}
                   <div className="space-y-2.5">
-                    <div className="p-3.5 rounded-xl bg-[#1a1a1a] border border-stone-800 hover:border-[#B45309]/50 transition-all flex items-center justify-between">
+                    <motion.div
+                      whileHover={{ x: 4 }}
+                      transition={{ duration: 0.2 }}
+                      className="p-3.5 rounded-xl bg-[#1a1a1a] border border-stone-800 hover:border-[#B45309]/50 transition-all flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-rose-950/80 border border-rose-800 flex items-center justify-center text-rose-400 font-bold text-xs">
                           AS
@@ -306,9 +379,13 @@ export default function LandingPage() {
                           Explain XAI
                         </span>
                       </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="p-3.5 rounded-xl bg-[#1a1a1a] border border-stone-800 hover:border-[#B45309]/50 transition-all flex items-center justify-between">
+                    <motion.div
+                      whileHover={{ x: 4 }}
+                      transition={{ duration: 0.2 }}
+                      className="p-3.5 rounded-xl bg-[#1a1a1a] border border-stone-800 hover:border-[#B45309]/50 transition-all flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-amber-950/80 border border-amber-800 flex items-center justify-center text-amber-400 font-bold text-xs">
                           VR
@@ -326,9 +403,13 @@ export default function LandingPage() {
                           Explain XAI
                         </span>
                       </div>
-                    </div>
+                    </motion.div>
 
-                    <div className="p-3.5 rounded-xl bg-[#1a1a1a] border border-stone-800 hover:border-[#B45309]/50 transition-all flex items-center justify-between">
+                    <motion.div
+                      whileHover={{ x: 4 }}
+                      transition={{ duration: 0.2 }}
+                      className="p-3.5 rounded-xl bg-[#1a1a1a] border border-stone-800 hover:border-[#B45309]/50 transition-all flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-emerald-950/80 border border-emerald-800 flex items-center justify-center text-emerald-400 font-bold text-xs">
                           SP
@@ -346,7 +427,7 @@ export default function LandingPage() {
                           Explain XAI
                         </span>
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
                 </div>
 
@@ -368,7 +449,12 @@ export default function LandingPage() {
                           <span className="text-rose-400 font-bold">-34% Impact</span>
                         </div>
                         <div className="w-full bg-stone-800 h-2 rounded-full overflow-hidden">
-                          <div className="bg-rose-500 h-full rounded-full" style={{ width: '84%' }} />
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: '84%' }}
+                            transition={{ duration: 1, delay: 0.5 }}
+                            className="bg-rose-500 h-full rounded-full"
+                          />
                         </div>
                       </div>
 
@@ -378,7 +464,12 @@ export default function LandingPage() {
                           <span className="text-rose-400 font-bold">-28% Impact</span>
                         </div>
                         <div className="w-full bg-stone-800 h-2 rounded-full overflow-hidden">
-                          <div className="bg-rose-400 h-full rounded-full" style={{ width: '70%' }} />
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: '70%' }}
+                            transition={{ duration: 1, delay: 0.6 }}
+                            className="bg-rose-400 h-full rounded-full"
+                          />
                         </div>
                       </div>
 
@@ -388,7 +479,12 @@ export default function LandingPage() {
                           <span className="text-amber-400 font-bold">-14% Impact</span>
                         </div>
                         <div className="w-full bg-stone-800 h-2 rounded-full overflow-hidden">
-                          <div className="bg-[#B45309] h-full rounded-full" style={{ width: '42%' }} />
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: '42%' }}
+                            transition={{ duration: 1, delay: 0.7 }}
+                            className="bg-[#B45309] h-full rounded-full"
+                          />
                         </div>
                       </div>
                     </div>
@@ -406,53 +502,65 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Stats Counter Section (Secondary Surface: #F7F5F2) */}
+      {/* Stats Counter Section with Scroll Motion */}
       <section className="relative z-10 py-12 border-y border-[#E7E5E4] bg-[#F7F5F2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6, staggerChildren: 0.1 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
+          >
+            <motion.div whileHover={{ y: -4 }} className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
               <p className="text-3xl sm:text-4xl font-extrabold text-[#B45309]">
                 95.6%
               </p>
               <p className="mt-1 text-xs sm:text-sm font-bold text-[#111111]">Prediction Accuracy</p>
               <p className="text-[11px] text-[#57534E]">Random Forest Champion</p>
-            </div>
+            </motion.div>
 
-            <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
+            <motion.div whileHover={{ y: -4 }} className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
               <p className="text-3xl sm:text-4xl font-extrabold text-[#8B5A2B]">
                 93.9%
               </p>
               <p className="mt-1 text-xs sm:text-sm font-bold text-[#111111]">High-Risk Recall</p>
               <p className="text-[11px] text-[#57534E]">Minimizing false negatives</p>
-            </div>
+            </motion.div>
 
-            <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
+            <motion.div whileHover={{ y: -4 }} className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
               <p className="text-3xl sm:text-4xl font-extrabold text-[#111111]">
                 &lt; 50ms
               </p>
               <p className="mt-1 text-xs sm:text-sm font-bold text-[#111111]">Inference Latency</p>
               <p className="text-[11px] text-[#57534E]">Real-time model scoring</p>
-            </div>
+            </motion.div>
 
-            <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
+            <motion.div whileHover={{ y: -4 }} className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
               <p className="text-3xl sm:text-4xl font-extrabold text-[#B45309]">
                 3 Portals
               </p>
               <p className="mt-1 text-xs sm:text-sm font-bold text-[#111111]">Role-Based Access</p>
               <p className="text-[11px] text-[#57534E]">Faculty, Student & Admin</p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Section 1: Overview & The Academic Crisis SAPPS Solves */}
       <section id="overview" className="relative z-10 py-24 bg-[#FFFFFF]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto mb-16"
+          >
             <span className="text-xs font-bold text-[#B45309] tracking-wider uppercase px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
               Why SAPPS?
             </span>
@@ -462,11 +570,17 @@ export default function LandingPage() {
             <p className="mt-4 text-base text-[#57534E]">
               Traditional universities only discover academic struggle after final semester grades are published. By then, it is too late to intervene.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* The Old Way */}
-            <div className="p-8 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] relative overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6 }}
+              className="p-8 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] relative overflow-hidden"
+            >
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-rose-700 border border-rose-200">
                   <AlertTriangle className="w-5 h-5" />
@@ -487,10 +601,16 @@ export default function LandingPage() {
                   <span><strong className="text-[#111111]">Subjective Faculty Intuition:</strong> Heavy teaching workloads mean educators cannot manually track 300+ students individual risk slopes.</span>
                 </li>
               </ul>
-            </div>
+            </motion.div>
 
             {/* The SAPPS Way */}
-            <div className="p-8 rounded-2xl bg-[#F7F5F2] border-2 border-[#B45309]/30 relative overflow-hidden shadow-sm">
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6 }}
+              className="p-8 rounded-2xl bg-[#F7F5F2] border-2 border-[#B45309]/30 relative overflow-hidden shadow-sm"
+            >
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-[#B45309] border border-amber-300">
                   <Brain className="w-5 h-5" />
@@ -511,15 +631,21 @@ export default function LandingPage() {
                   <span><strong className="text-[#111111]">Self-Service What-If Simulation:</strong> Students can experiment with study adjustments in real-time to visualize what it takes to graduate safely.</span>
                 </li>
               </ul>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Section 2: Comprehensive Dashboard Deep-Dive */}
+      {/* Section 2: Comprehensive Dashboard Deep-Dive with Animated Layout Tabs */}
       <section id="dashboards" className="relative z-10 py-24 bg-[#F7F5F2] border-t border-[#E7E5E4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto mb-14"
+          >
             <span className="text-xs font-bold text-[#B45309] tracking-wider uppercase px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
               Architecture & User Roles
             </span>
@@ -529,422 +655,322 @@ export default function LandingPage() {
             <p className="mt-4 text-base text-[#57534E]">
               A unified intelligent ecosystem tailored with dedicated role-based portals for Professors, Students, Deans, and Registrars.
             </p>
-          </div>
+          </motion.div>
 
-          {/* Tab Selector Buttons */}
+          {/* Tab Selector Buttons with Motion layoutId */}
           <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] max-w-2xl mx-auto mb-12 shadow-xs">
-            <button
-              onClick={() => setActiveTab('faculty')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'faculty'
-                  ? 'bg-[#B45309] text-white shadow-sm'
-                  : 'text-[#57534E] hover:text-[#111111]'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              <span>Faculty Dashboard</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('student')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'student'
-                  ? 'bg-[#B45309] text-white shadow-sm'
-                  : 'text-[#57534E] hover:text-[#111111]'
-              }`}
-            >
-              <GraduationCap className="w-4 h-4" />
-              <span>Student Portal</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('admin')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'admin'
-                  ? 'bg-[#B45309] text-white shadow-sm'
-                  : 'text-[#57534E] hover:text-[#111111]'
-              }`}
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span>Dean & Admin Deck</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('batch')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'batch'
-                  ? 'bg-[#B45309] text-white shadow-sm'
-                  : 'text-[#57534E] hover:text-[#111111]'
-              }`}
-            >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span>CSV Batch Ingestion</span>
-            </button>
+            {[
+              { id: 'faculty', label: 'Faculty Dashboard', icon: Users },
+              { id: 'student', label: 'Student Portal', icon: GraduationCap },
+              { id: 'admin', label: 'Dean & Admin Deck', icon: BarChart3 },
+              { id: 'batch', label: 'CSV Batch Ingestion', icon: FileSpreadsheet },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-colors ${
+                    isActive ? 'text-white' : 'text-[#57534E] hover:text-[#111111]'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeRoleTab"
+                      className="absolute inset-0 bg-[#B45309] rounded-xl shadow-sm"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2">
+                    <Icon className="w-4 h-4" />
+                    <span>{tab.label}</span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Tab Content Cards */}
-          <div className="bg-[#FFFFFF] border border-[#E7E5E4] rounded-2xl p-6 sm:p-10 shadow-lg">
-            {/* Faculty Tab */}
-            {activeTab === 'faculty' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-50 text-[#B45309] text-xs font-bold border border-amber-200">
-                    <span>Route: /faculty</span>
-                    <span className="w-1 h-1 rounded-full bg-[#B45309]" />
-                    <span>Role: FACULTY & ADMIN</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
-                    Faculty Cohort Intelligence Cockpit
-                  </h3>
-                  <p className="text-sm text-[#57534E] leading-relaxed">
-                    Designed for professors and course instructors. It aggregates student assessments,
-                    triggers single-click machine learning inference, and reveals actionable guidance recommendations.
-                  </p>
-
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Live Cohort Roster:</strong> Search, filter by department, and inspect individual academic vitals.
-                      </p>
+          {/* Tab Content Cards with AnimatePresence */}
+          <div className="bg-[#FFFFFF] border border-[#E7E5E4] rounded-2xl p-6 sm:p-10 shadow-lg min-h-[460px] flex items-center">
+            <AnimatePresence mode="wait">
+              {activeTab === 'faculty' && (
+                <motion.div
+                  key="faculty"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-50 text-[#B45309] text-xs font-bold border border-amber-200">
+                      <span>Route: /faculty</span>
+                      <span className="w-1 h-1 rounded-full bg-[#B45309]" />
+                      <span>Role: FACULTY & ADMIN</span>
                     </div>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
+                      Faculty Cohort Intelligence Cockpit
+                    </h3>
+                    <p className="text-sm text-[#57534E] leading-relaxed">
+                      Designed for professors and course instructors. It aggregates student assessments,
+                      triggers single-click machine learning inference, and reveals actionable guidance recommendations.
+                    </p>
 
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
-                        <CheckCircle2 className="w-4 h-4" />
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <p className="text-xs text-[#57534E]">
+                          <strong className="text-[#111111]">Live Cohort Roster:</strong> Search, filter by department, and inspect individual academic vitals.
+                        </p>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">1-Click ML Inference:</strong> Execute the Random Forest engine across students to update predictions on demand.
-                      </p>
-                    </div>
 
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
-                        <CheckCircle2 className="w-4 h-4" />
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <p className="text-xs text-[#57534E]">
+                          <strong className="text-[#111111]">1-Click ML Inference:</strong> Execute the Random Forest engine across students to update predictions on demand.
+                        </p>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Explainable AI Modal:</strong> Opens mathematical feature attributions and 2-3 tailored intervention tasks for each student.
-                      </p>
-                    </div>
 
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Instant CSV Export:</strong> Export sorted cohorts with risk classifications directly into accredited audit spreadsheets.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4">
-                    <button
-                      onClick={() => handleDemoLogin('faculty@sapp.edu', 'Faculty@123')}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] transition-all shadow-sm"
-                    >
-                      <span>Launch Faculty View (Demo)</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#E7E5E4]">
-                    <span className="text-xs font-bold text-[#111111]">Faculty Cockpit Preview</span>
-                    <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
-                      Live Data Active
-                    </span>
-                  </div>
-                  <div className="mt-4 space-y-3">
-                    <div className="p-3.5 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-[#111111]">Aarav Sharma (CS2026-003)</span>
-                        <span className="text-rose-800 font-extrabold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">HIGH_RISK</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 mt-2 text-[11px] text-[#57534E]">
-                        <div>Attendance: <span className="text-[#111111] font-semibold">54%</span></div>
-                        <div>Internals: <span className="text-[#111111] font-semibold">18/50</span></div>
-                        <div>CGPA: <span className="text-[#111111] font-semibold">6.1</span></div>
-                      </div>
-                      <div className="mt-2 text-[11px] text-[#B45309] bg-amber-50 p-2 rounded border border-amber-200">
-                        <strong>Recommended:</strong> Mandatory tutoring & attendance counseling.
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <p className="text-xs text-[#57534E]">
+                          <strong className="text-[#111111]">Explainable AI Modal:</strong> Opens mathematical feature attributions and 2-3 tailored intervention tasks for each student.
+                        </p>
                       </div>
                     </div>
 
-                    <div className="p-3.5 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-bold text-[#111111]">Pooja Iyer (EC2026-005)</span>
-                        <span className="text-emerald-800 font-extrabold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">LOW_RISK</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 mt-2 text-[11px] text-[#57534E]">
-                        <div>Attendance: <span className="text-[#111111] font-semibold">92%</span></div>
-                        <div>Internals: <span className="text-[#111111] font-semibold">44/50</span></div>
-                        <div>CGPA: <span className="text-[#111111] font-semibold">8.8</span></div>
-                      </div>
-                      <div className="mt-2 text-[11px] text-emerald-800 bg-emerald-50 p-2 rounded border border-emerald-200">
-                        <strong>Recommended:</strong> Nominate for department honor societies and research tracks.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Student Tab */}
-            {activeTab === 'student' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
-                    <span>Route: /student</span>
-                    <span className="w-1 h-1 rounded-full bg-emerald-600" />
-                    <span>Role: STUDENT</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
-                    Personal Student Growth Portal
-                  </h3>
-                  <p className="text-sm text-[#57534E] leading-relaxed">
-                    A private, student-centric hub providing complete transparency into personal performance,
-                    actionable guidance, and an interactive sandbox to test future performance trajectories.
-                  </p>
-
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700 mt-0.5 border border-emerald-200">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Personalized Academic Scorecard:</strong> Live GPA, current attendance status, and internal assessment tracking.
-                      </p>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700 mt-0.5 border border-emerald-200">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Interactive "What-If" Simulator:</strong> Adjust attendance, internal test targets, and assignment completion sliders to forecast future risk levels in real time.
-                      </p>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700 mt-0.5 border border-emerald-200">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Constructive AI Action Plan:</strong> Empathetic, personalized recommendations helping students improve without shame or ambiguity.
-                      </p>
+                    <div className="pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleDemoLogin('faculty@sapp.edu', 'Faculty@123')}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] transition-all shadow-sm"
+                      >
+                        <span>Launch Faculty View (Demo)</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </motion.button>
                     </div>
                   </div>
 
-                  <div className="pt-4">
-                    <button
-                      onClick={() => handleDemoLogin('student@sapp.edu', 'Student@123')}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-all shadow-sm"
-                    >
-                      <span>Launch Student Portal (Demo)</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#E7E5E4]">
-                    <span className="text-xs font-bold text-[#111111]">Student What-If Sandbox Preview</span>
-                    <span className="text-[10px] text-[#B45309] bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-bold">
-                      Predictive Mode
-                    </span>
-                  </div>
-                  <div className="mt-4 p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-xs text-[#57534E]">Simulated Outcome</p>
-                        <p className="text-base font-extrabold text-emerald-700">LOW_RISK (92% Confidence)</p>
-                      </div>
-                      <span className="text-xs font-bold text-[#B45309] bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                        Passing with Honors
+                  <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#E7E5E4]">
+                      <span className="text-xs font-bold text-[#111111]">Faculty Cockpit Preview</span>
+                      <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
+                        Live Data Active
                       </span>
                     </div>
-
-                    <div className="space-y-2 text-xs">
-                      <div>
-                        <div className="flex justify-between text-[#57534E] mb-1">
-                          <span>Target Attendance: 85%</span>
-                          <span className="text-emerald-700 font-bold">+15% improvement</span>
+                    <div className="mt-4 space-y-3">
+                      <div className="p-3.5 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="font-bold text-[#111111]">Aarav Sharma (CS2026-003)</span>
+                          <span className="text-rose-800 font-extrabold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">HIGH_RISK</span>
                         </div>
-                        <div className="w-full bg-[#E7E5E4] h-1.5 rounded-full overflow-hidden">
-                          <div className="bg-[#B45309] h-full rounded-full" style={{ width: '85%' }} />
+                        <div className="grid grid-cols-3 gap-2 mt-2 text-[11px] text-[#57534E]">
+                          <div>Attendance: <span className="text-[#111111] font-semibold">54%</span></div>
+                          <div>Internals: <span className="text-[#111111] font-semibold">18/50</span></div>
+                          <div>CGPA: <span className="text-[#111111] font-semibold">6.1</span></div>
                         </div>
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-[#57534E] mb-1">
-                          <span>Target Internal Score: 40/50</span>
-                          <span className="text-emerald-700 font-bold">+10 marks</span>
-                        </div>
-                        <div className="w-full bg-[#E7E5E4] h-1.5 rounded-full overflow-hidden">
-                          <div className="bg-[#8B5A2B] h-full rounded-full" style={{ width: '80%' }} />
+                        <div className="mt-2 text-[11px] text-[#B45309] bg-amber-50 p-2 rounded border border-amber-200">
+                          <strong>Recommended:</strong> Mandatory tutoring & attendance counseling.
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {/* Admin Tab */}
-            {activeTab === 'admin' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F7F5F2] text-[#111111] text-xs font-bold border border-[#E7E5E4]">
-                    <span>Route: /admin</span>
-                    <span className="w-1 h-1 rounded-full bg-[#111111]" />
-                    <span>Role: ADMIN</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
-                    Dean & Institutional Analytics Deck
-                  </h3>
-                  <p className="text-sm text-[#57534E] leading-relaxed">
-                    Designed for University Deans, Department Chairs, and Academic Quality Committees to evaluate campus-wide retention rates, model health, and cohort risk trends.
-                  </p>
-
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-[#F7F5F2] flex items-center justify-center text-[#111111] mt-0.5 border border-[#E7E5E4]">
-                        <CheckCircle2 className="w-4 h-4" />
+                      <div className="p-3.5 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="font-bold text-[#111111]">Pooja Iyer (EC2026-005)</span>
+                          <span className="text-emerald-800 font-extrabold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">LOW_RISK</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 mt-2 text-[11px] text-[#57534E]">
+                          <div>Attendance: <span className="text-[#111111] font-semibold">92%</span></div>
+                          <div>Internals: <span className="text-[#111111] font-semibold">44/50</span></div>
+                          <div>CGPA: <span className="text-[#111111] font-semibold">8.8</span></div>
+                        </div>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Institutional KPI Overview:</strong> Total campus enrollment, average cohort GPA, total evaluated students, and high-risk flags.
-                      </p>
                     </div>
+                  </div>
+                </motion.div>
+              )}
 
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-[#F7F5F2] flex items-center justify-center text-[#111111] mt-0.5 border border-[#E7E5E4]">
-                        <CheckCircle2 className="w-4 h-4" />
+              {activeTab === 'student' && (
+                <motion.div
+                  key="student"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
+                      <span>Route: /student</span>
+                      <span className="w-1 h-1 rounded-full bg-emerald-600" />
+                      <span>Role: STUDENT</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
+                      Personal Student Growth Portal
+                    </h3>
+                    <p className="text-sm text-[#57534E] leading-relaxed">
+                      A private, student-centric hub providing complete transparency into personal performance,
+                      actionable guidance, and an interactive sandbox to test future performance trajectories.
+                    </p>
+
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700 mt-0.5 border border-emerald-200">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <p className="text-xs text-[#57534E]">
+                          <strong className="text-[#111111]">Personalized Academic Scorecard:</strong> Live GPA, current attendance status, and internal assessment tracking.
+                        </p>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Risk Distribution Donut:</strong> Visual breakdown of High vs. Medium vs. Low risk percentages across the institution.
-                      </p>
-                    </div>
 
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-[#F7F5F2] flex items-center justify-center text-[#111111] mt-0.5 border border-[#E7E5E4]">
-                        <CheckCircle2 className="w-4 h-4" />
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700 mt-0.5 border border-emerald-200">
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                        <p className="text-xs text-[#57534E]">
+                          <strong className="text-[#111111]">Interactive "What-If" Simulator:</strong> Adjust attendance, internal test targets, and assignment completion sliders to forecast future risk levels in real time.
+                        </p>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Attendance vs. GPA Scatter Correlation:</strong> Uncover multi-dimensional patterns and departmental retention disparities.
-                      </p>
+                    </div>
+
+                    <div className="pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleDemoLogin('student@sapp.edu', 'Student@123')}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-all shadow-sm"
+                      >
+                        <span>Launch Student Portal (Demo)</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </motion.button>
                     </div>
                   </div>
 
-                  <div className="pt-4">
-                    <button
-                      onClick={() => handleDemoLogin('admin@sapp.edu', 'Admin@123')}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#111111] hover:bg-[#222222] transition-all shadow-sm"
-                    >
-                      <span>Launch Admin Deck (Demo)</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#E7E5E4]">
-                    <span className="text-xs font-bold text-[#111111]">Executive Macro Analytics</span>
-                    <span className="text-[10px] text-[#111111] bg-[#FFFFFF] px-2 py-0.5 rounded border border-[#E7E5E4] font-bold">
-                      Campus Metrics
-                    </span>
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 gap-3 text-center">
-                    <div className="p-3 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
-                      <p className="text-2xl font-bold text-[#111111]">50</p>
-                      <p className="text-[11px] text-[#57534E]">Total Enrolled</p>
+                  <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#E7E5E4]">
+                      <span className="text-xs font-bold text-[#111111]">Student What-If Sandbox Preview</span>
+                      <span className="text-[10px] text-[#B45309] bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-bold">
+                        Predictive Mode
+                      </span>
                     </div>
-                    <div className="p-3 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
-                      <p className="text-2xl font-bold text-[#B45309]">7.62</p>
-                      <p className="text-[11px] text-[#57534E]">Average Campus GPA</p>
-                    </div>
-                    <div className="p-3 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
-                      <p className="text-2xl font-bold text-rose-700">14%</p>
-                      <p className="text-[11px] text-[#57534E]">High Risk Cohort</p>
-                    </div>
-                    <div className="p-3 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
-                      <p className="text-2xl font-bold text-emerald-700">68%</p>
-                      <p className="text-[11px] text-[#57534E]">Low Risk Honors</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Batch Ingestion Tab */}
-            {activeTab === 'batch' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-6 space-y-5">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-50 text-[#B45309] text-xs font-bold border border-amber-200">
-                    <span>Route: /batch-upload</span>
-                    <span className="w-1 h-1 rounded-full bg-[#B45309]" />
-                    <span>Role: FACULTY & ADMIN</span>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
-                    High-Throughput CSV Assessment Ingestion
-                  </h3>
-                  <p className="text-sm text-[#57534E] leading-relaxed">
-                    Seamlessly ingest hundreds of student marks from university LMS systems (Moodle, Blackboard, Canvas) in seconds with client-side error checking.
-                  </p>
-
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
-                        <CheckCircle2 className="w-4 h-4" />
+                    <div className="mt-4 p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="text-xs text-[#57534E]">Simulated Outcome</p>
+                          <p className="text-base font-extrabold text-emerald-700">LOW_RISK (92% Confidence)</p>
+                        </div>
+                        <span className="text-xs font-bold text-[#B45309] bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                          Passing with Honors
+                        </span>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Drag-and-Drop Dropzone:</strong> Upload any standardized CSV file containing student attendance and test results.
-                      </p>
                     </div>
+                  </div>
+                </motion.div>
+              )}
 
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
-                        <CheckCircle2 className="w-4 h-4" />
+              {activeTab === 'admin' && (
+                <motion.div
+                  key="admin"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#F7F5F2] text-[#111111] text-xs font-bold border border-[#E7E5E4]">
+                      <span>Route: /admin</span>
+                      <span className="w-1 h-1 rounded-full bg-[#111111]" />
+                      <span>Role: ADMIN</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
+                      Dean & Institutional Analytics Deck
+                    </h3>
+                    <p className="text-sm text-[#57534E] leading-relaxed">
+                      Designed for University Deans, Department Chairs, and Academic Quality Committees to evaluate campus-wide retention rates, model health, and cohort risk trends.
+                    </p>
+
+                    <div className="pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleDemoLogin('admin@sapp.edu', 'Admin@123')}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#111111] hover:bg-[#222222] transition-all shadow-sm"
+                      >
+                        <span>Launch Admin Deck (Demo)</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
+                    <div className="grid grid-cols-2 gap-3 text-center">
+                      <div className="p-3 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
+                        <p className="text-2xl font-bold text-[#111111]">50</p>
+                        <p className="text-[11px] text-[#57534E]">Total Enrolled</p>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Instant Client-Side Validation:</strong> Highlights malformed student roll numbers, invalid scores, and missing columns before upload.
-                      </p>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-[#B45309] mt-0.5 border border-amber-200">
-                        <CheckCircle2 className="w-4 h-4" />
+                      <div className="p-3 bg-[#FFFFFF] border border-[#E7E5E4] rounded-xl">
+                        <p className="text-2xl font-bold text-[#B45309]">7.62</p>
+                        <p className="text-[11px] text-[#57534E]">Average Campus GPA</p>
                       </div>
-                      <p className="text-xs text-[#57534E]">
-                        <strong className="text-[#111111]">Sample CSV Template Download:</strong> Pre-formatted template guaranteed to pass parser specifications instantly.
-                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'batch' && (
+                <motion.div
+                  key="batch"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+                >
+                  <div className="lg:col-span-6 space-y-5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-50 text-[#B45309] text-xs font-bold border border-amber-200">
+                      <span>Route: /batch-upload</span>
+                      <span className="w-1 h-1 rounded-full bg-[#B45309]" />
+                      <span>Role: FACULTY & ADMIN</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#111111]">
+                      High-Throughput CSV Assessment Ingestion
+                    </h3>
+                    <p className="text-sm text-[#57534E] leading-relaxed">
+                      Seamlessly ingest hundreds of student marks from university LMS systems (Moodle, Blackboard, Canvas) in seconds with client-side error checking.
+                    </p>
+
+                    <div className="pt-4">
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleDemoLogin('faculty@sapp.edu', 'Faculty@123')}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] transition-all shadow-sm"
+                      >
+                        <span>Try Batch Ingestion (Demo)</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </motion.button>
                     </div>
                   </div>
 
-                  <div className="pt-4">
-                    <button
-                      onClick={() => handleDemoLogin('faculty@sapp.edu', 'Faculty@123')}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] transition-all shadow-sm"
-                    >
-                      <span>Try Batch Ingestion (Demo)</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
-                  <div className="border-2 border-dashed border-[#B45309]/40 rounded-xl p-8 text-center bg-[#FFFFFF]">
-                    <FileSpreadsheet className="w-12 h-12 text-[#B45309] mx-auto mb-3" />
-                    <p className="text-sm font-bold text-[#111111]">Drag and Drop University CSV</p>
-                    <p className="text-xs text-[#57534E] mt-1">Supported: .csv files up to 10MB</p>
-                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#F7F5F2] text-[11px] text-[#57534E] border border-[#E7E5E4]">
-                      <span>Template: student_id, internal_marks, attendance_rate...</span>
+                  <div className="lg:col-span-6 bg-[#F7F5F2] border border-[#E7E5E4] rounded-xl p-5 shadow-xs">
+                    <div className="border-2 border-dashed border-[#B45309]/40 rounded-xl p-8 text-center bg-[#FFFFFF]">
+                      <FileSpreadsheet className="w-12 h-12 text-[#B45309] mx-auto mb-3" />
+                      <p className="text-sm font-bold text-[#111111]">Drag and Drop University CSV</p>
+                      <p className="text-xs text-[#57534E] mt-1">Supported: .csv files up to 10MB</p>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
@@ -952,7 +978,13 @@ export default function LandingPage() {
       {/* Section 3: Interactive Live "What-If" Simulator */}
       <section id="simulator" className="relative z-10 py-24 bg-[#FFFFFF]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto mb-14"
+          >
             <span className="text-xs font-bold text-[#B45309] tracking-wider uppercase px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
               Interactive Live Engine
             </span>
@@ -962,9 +994,15 @@ export default function LandingPage() {
             <p className="mt-4 text-base text-[#57534E]">
               Test how behavioral indicators alter student risk scores. Adjust the sliders below to see the simulated Random Forest inference engine update in real time.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="max-w-5xl mx-auto bg-[#F7F5F2] border border-[#E7E5E4] rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.7 }}
+            className="max-w-5xl mx-auto bg-[#F7F5F2] border border-[#E7E5E4] rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden"
+          >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Sliders Area */}
               <div className="lg:col-span-7 space-y-6">
@@ -1030,11 +1068,6 @@ export default function LandingPage() {
                     onChange={(e) => setAssignments(Number(e.target.value))}
                     className="w-full h-2 bg-[#E7E5E4] rounded-lg appearance-none cursor-pointer accent-[#111111]"
                   />
-                  <div className="flex justify-between text-[11px] text-[#57534E] mt-1">
-                    <span>10 (Neglected)</span>
-                    <span>35 (Average)</span>
-                    <span>50 (Exceptional)</span>
-                  </div>
                 </div>
 
                 <div>
@@ -1054,25 +1087,29 @@ export default function LandingPage() {
                     onChange={(e) => setPriorGpa(Number(e.target.value))}
                     className="w-full h-2 bg-[#E7E5E4] rounded-lg appearance-none cursor-pointer accent-emerald-700"
                   />
-                  <div className="flex justify-between text-[11px] text-[#57534E] mt-1">
-                    <span>3.0 (Probation)</span>
-                    <span>7.0 (Good)</span>
-                    <span>10.0 (Top Honors)</span>
-                  </div>
                 </div>
               </div>
 
-              {/* Dynamic Real-time Output Card */}
-              <div className="lg:col-span-5 bg-[#FFFFFF] border border-[#E7E5E4] rounded-2xl p-6 text-center flex flex-col justify-between shadow-md">
+              {/* Dynamic Output Card with layout animation */}
+              <motion.div
+                layout
+                className="lg:col-span-5 bg-[#FFFFFF] border border-[#E7E5E4] rounded-2xl p-6 text-center flex flex-col justify-between shadow-md"
+              >
                 <div>
                   <span className="text-[11px] uppercase tracking-wider font-bold text-[#57534E]">
                     Live Random Forest Output
                   </span>
 
                   <div className="mt-4 flex flex-col items-center">
-                    <span className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider border ${simResult.riskColor}`}>
+                    <motion.span
+                      key={simResult.risk}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 400 }}
+                      className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider border ${simResult.riskColor}`}
+                    >
                       {simResult.risk}
-                    </span>
+                    </motion.span>
                     <h4 className="text-lg font-bold text-[#111111] mt-2">
                       {simResult.statusText}
                     </h4>
@@ -1081,7 +1118,6 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Mathematical Feature Breakdown */}
                   <div className="mt-6 space-y-2.5 text-left text-xs">
                     <div className="flex justify-between">
                       <span className="text-[#57534E]">Attendance Weight</span>
@@ -1107,16 +1143,22 @@ export default function LandingPage() {
                     {simResult.recommendation}
                   </p>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Section 4: Machine Learning Pipeline & Architecture */}
       <section id="ml-architecture" className="relative z-10 py-24 bg-[#F7F5F2] border-t border-[#E7E5E4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto mb-16"
+          >
             <span className="text-xs font-bold text-[#B45309] tracking-wider uppercase px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
               Technical Excellence
             </span>
@@ -1126,10 +1168,13 @@ export default function LandingPage() {
             <p className="mt-4 text-base text-[#57534E]">
               From zero-data-leakage pipeline design to explainable SHAP-inspired decompositions, SAPPS meets enterprise institutional standards.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-sm hover:border-[#B45309] transition-all group">
+            <motion.div
+              whileHover={{ y: -6 }}
+              className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-sm hover:border-[#B45309] transition-all group"
+            >
               <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-[#B45309] border border-amber-200 group-hover:scale-110 transition-transform">
                 <Cpu className="w-6 h-6" />
               </div>
@@ -1137,9 +1182,12 @@ export default function LandingPage() {
               <p className="text-xs text-[#57534E] mt-2 leading-relaxed">
                 Trained with 100 balanced decision trees. Systematically benchmarked against Logistic Regression and Decision Trees to achieve 95.6% Macro accuracy.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-sm hover:border-[#8B5A2B] transition-all group">
+            <motion.div
+              whileHover={{ y: -6 }}
+              className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-sm hover:border-[#8B5A2B] transition-all group"
+            >
               <div className="w-12 h-12 rounded-xl bg-[#F7F5F2] flex items-center justify-center text-[#8B5A2B] border border-[#E7E5E4] group-hover:scale-110 transition-transform">
                 <Brain className="w-6 h-6" />
               </div>
@@ -1147,9 +1195,12 @@ export default function LandingPage() {
               <p className="text-xs text-[#57534E] mt-2 leading-relaxed">
                 Replaces opaque black-box AI with continuous mathematical feature importance, granting professors complete visibility into the factors driving every score.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-sm hover:border-[#111111] transition-all group">
+            <motion.div
+              whileHover={{ y: -6 }}
+              className="p-8 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-sm hover:border-[#111111] transition-all group"
+            >
               <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center text-[#111111] border border-stone-200 group-hover:scale-110 transition-transform">
                 <Lock className="w-6 h-6" />
               </div>
@@ -1157,7 +1208,7 @@ export default function LandingPage() {
               <p className="text-xs text-[#57534E] mt-2 leading-relaxed">
                 JWT bearer tokens, 72-byte safe bcrypt cryptography, and strict role guards guarantee that student academic vitals remain completely private.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1177,7 +1228,7 @@ export default function LandingPage() {
 
           <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-left">
             {/* Faculty Card */}
-            <div className="p-6 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] shadow-sm flex flex-col justify-between">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] shadow-sm flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-[#B45309] border border-amber-200">
@@ -1191,16 +1242,18 @@ export default function LandingPage() {
                   Evaluate cohorts, review XAI explanations, and trigger predictions.
                 </p>
               </div>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleDemoLogin('faculty@sapp.edu', 'Faculty@123')}
                 className="mt-6 w-full py-2.5 rounded-xl text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] transition-all shadow-sm text-center"
               >
                 Log In as Faculty
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
             {/* Admin Card */}
-            <div className="p-6 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] shadow-sm flex flex-col justify-between">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] shadow-sm flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-200 text-[#111111] border border-[#E7E5E4]">
@@ -1214,16 +1267,18 @@ export default function LandingPage() {
                   Inspect university-wide risk trends and attendance distributions.
                 </p>
               </div>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleDemoLogin('admin@sapp.edu', 'Admin@123')}
                 className="mt-6 w-full py-2.5 rounded-xl text-xs font-bold text-white bg-[#111111] hover:bg-[#222222] transition-all shadow-sm text-center"
               >
                 Log In as Admin
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
             {/* Student Card */}
-            <div className="p-6 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] shadow-sm flex flex-col justify-between">
+            <motion.div whileHover={{ y: -4 }} className="p-6 rounded-2xl bg-[#F7F5F2] border border-[#E7E5E4] shadow-sm flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
@@ -1237,20 +1292,22 @@ export default function LandingPage() {
                   Check personal GPA, trajectory recommendations, and simulator.
                 </p>
               </div>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleDemoLogin('student@sapp.edu', 'Student@123')}
                 className="mt-6 w-full py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-all shadow-sm text-center"
               >
                 Log In as Student
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Section 6: FAQ */}
+      {/* Section 6: Animated FAQ Accordion with AnimatePresence */}
       <section id="faq" className="relative z-10 py-24 bg-[#F7F5F2] border-t border-[#E7E5E4]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <span className="text-xs font-bold text-[#B45309] tracking-wider uppercase px-3 py-1 rounded-full bg-amber-50 border border-amber-200">
               Questions & Answers
@@ -1260,41 +1317,54 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div className="space-y-4">
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
-              <h4 className="text-base font-bold text-[#111111] flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-[#B45309] flex-shrink-0" />
-                How does the Random Forest model avoid data leakage?
-              </h4>
-              <p className="text-xs text-[#57534E] mt-2 leading-relaxed">
-                Our machine learning pipeline uses continuous academic features measured prior to the final exam cutoff. Target status is computed solely from final semester performance, while training features rely strictly on leading indicators (midterm attendance, continuous assessments, and historical GPA).
-              </p>
-            </div>
+          <div className="space-y-3">
+            {faqs.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className="rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] overflow-hidden shadow-xs transition-colors"
+                >
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm text-[#111111] hover:text-[#B45309] transition-colors"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <HelpCircle className="w-4 h-4 text-[#B45309] flex-shrink-0" />
+                      <span>{faq.q}</span>
+                    </span>
+                    <motion.div
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex-shrink-0 text-[#57534E]"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </motion.div>
+                  </button>
 
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
-              <h4 className="text-base font-bold text-[#111111] flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-[#B45309] flex-shrink-0" />
-                Can our university upload custom grade sheets?
-              </h4>
-              <p className="text-xs text-[#57534E] mt-2 leading-relaxed">
-                Yes! The CSV Batch Ingestion engine allows faculty and registrars to drag and drop standard CSV exports from any LMS (Moodle, Blackboard, Canvas) and commit hundreds of student assessment records in a single click.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-[#FFFFFF] border border-[#E7E5E4] shadow-xs">
-              <h4 className="text-base font-bold text-[#111111] flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-[#B45309] flex-shrink-0" />
-                How are the prescriptive interventions generated?
-              </h4>
-              <p className="text-xs text-[#57534E] mt-2 leading-relaxed">
-                The XAI service analyzes the feature attributions of the prediction. If low attendance is the top negative driver, it prescribes attendance tracking and mandatory lab makeup sessions. If internal marks are low, it generates study group and tutoring recommendations.
-              </p>
-            </div>
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 pb-5 pt-1 text-xs text-[#57534E] leading-relaxed border-t border-[#E7E5E4]/60">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Footer (Dark Section 30%: #111111) */}
+      {/* Footer */}
       <footer className="relative z-10 py-12 border-t border-[#E7E5E4] bg-[#111111] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">

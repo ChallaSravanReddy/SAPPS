@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Search,
   Filter,
@@ -362,152 +363,166 @@ export default function FacultyDashboard() {
       </div>
 
       {/* XAI & RECOMMENDATIONS MODAL */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111111]/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-[#FFFFFF] w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E7E5E4] overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-[#E7E5E4] flex items-center justify-between bg-[#F7F5F2]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#B45309] text-white flex items-center justify-center shadow-xs">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-[#111111]">
-                    Explainable AI (XAI) Assessment Report
-                  </h3>
-                  <p className="text-xs text-[#57534E]">
-                    Model: {selectedPrediction?.model_version || 'Random Forest Classifier (Optimized)'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-[#57534E] hover:text-[#111111] rounded-lg hover:bg-[#E7E5E4] transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            {modalLoading ? (
-              <div className="p-12 text-center text-[#57534E] flex flex-col items-center justify-center gap-3">
-                <div className="w-8 h-8 border-3 border-[#B45309] border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm font-medium">Computing XAI Attributions & Interventions...</span>
-              </div>
-            ) : selectedPrediction ? (
-              <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                {/* Student Overview Strip */}
-                <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#F7F5F2] border border-[#E7E5E4]">
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111111]/60 backdrop-blur-xs overflow-y-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+              className="bg-[#FFFFFF] w-full max-w-3xl rounded-2xl shadow-2xl border border-[#E7E5E4] overflow-hidden my-8"
+            >
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b border-[#E7E5E4] flex items-center justify-between bg-[#F7F5F2]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#B45309] text-white flex items-center justify-center shadow-xs">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
                   <div>
-                    <span className="text-xs text-[#57534E] uppercase tracking-wider font-bold">Student</span>
-                    <h4 className="text-base font-bold text-[#111111]">{selectedPrediction.student_name}</h4>
-                    <p className="text-xs text-[#57534E] font-mono mt-0.5">
-                      {selectedPrediction.roll_number} • {selectedPrediction.department} (Sem {selectedPrediction.semester})
+                    <h3 className="text-lg font-bold text-[#111111]">
+                      Explainable AI (XAI) Assessment Report
+                    </h3>
+                    <p className="text-xs text-[#57534E]">
+                      Model: {selectedPrediction?.model_version || 'Random Forest Classifier (Optimized)'}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <span className="text-xs text-[#57534E] font-medium block">Risk Classification</span>
-                      <RiskBadge
-                        riskTier={selectedPrediction.risk_tier}
-                        confidence={selectedPrediction.confidence_score}
-                        size="lg"
-                      />
-                    </div>
-                  </div>
                 </div>
-
-                {/* Academic Snapshot Metrics */}
-                {selectedPrediction.academic_snapshot && (
-                  <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#57534E] mb-2">
-                      Academic Assessment Metrics Snapshot
-                    </h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
-                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
-                        <span className="text-[11px] text-[#57534E] block">Attendance</span>
-                        <strong className="text-sm text-[#111111]">
-                          {selectedPrediction.academic_snapshot.attendance_percentage}%
-                        </strong>
-                      </div>
-                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
-                        <span className="text-[11px] text-[#57534E] block">Internal Marks</span>
-                        <strong className="text-sm text-[#111111]">
-                          {selectedPrediction.academic_snapshot.internal_test_marks}/100
-                        </strong>
-                      </div>
-                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
-                        <span className="text-[11px] text-[#57534E] block">Assignment</span>
-                        <strong className="text-sm text-[#111111]">
-                          {selectedPrediction.academic_snapshot.assignment_score}/100
-                        </strong>
-                      </div>
-                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
-                        <span className="text-[11px] text-[#57534E] block">Quiz Score</span>
-                        <strong className="text-sm text-[#111111]">
-                          {selectedPrediction.academic_snapshot.quiz_score}/100
-                        </strong>
-                      </div>
-                      <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF] col-span-2 sm:col-span-1">
-                        <span className="text-[11px] text-[#57534E] block">Prior GPA</span>
-                        <strong className="text-sm text-[#111111]">
-                          {selectedPrediction.academic_snapshot.prev_semester_gpa}/10.0
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Feature Importance & Contribution Chart */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#57534E]">
-                      Feature Contribution to Risk Prediction (% Weight)
-                    </h4>
-                    <span className="text-[11px] text-[#57534E]">
-                      Standard Benchmarks: Attendance &ge; 75%, Internals &ge; 50
-                    </span>
-                  </div>
-                  <FeatureImportanceChart factors={selectedPrediction.top_negative_factors} />
-                </div>
-
-                {/* Prescriptive Interventions */}
-                <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Lightbulb className="w-4 h-4 text-[#B45309]" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#B45309]">
-                      Tailored Academic Interventions (Faculty Action Plan)
-                    </h4>
-                  </div>
-                  <div className="space-y-2">
-                    {selectedPrediction.actionable_recommendations &&
-                    selectedPrediction.actionable_recommendations.length > 0 ? (
-                      selectedPrediction.actionable_recommendations.map((rec, i) => (
-                        <div key={i} className="flex items-start gap-2.5 text-xs text-[#111111] bg-white p-3 rounded-xl border border-amber-100 shadow-2xs">
-                          <CheckCircle2 className="w-4 h-4 text-[#B45309] flex-shrink-0 mt-0.5" />
-                          <span className="leading-relaxed">{rec}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-[#57534E]">No specific interventions generated.</p>
-                    )}
-                  </div>
-                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-1.5 text-[#57534E] hover:text-[#111111] rounded-lg hover:bg-[#E7E5E4] transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            ) : null}
 
-            {/* Modal Footer */}
-            <div className="px-6 py-3.5 bg-[#F7F5F2] border-t border-[#E7E5E4] flex justify-end">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold bg-[#111111] text-white hover:bg-[#222222] rounded-xl transition-colors"
-              >
-                Close Report
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              {/* Modal Content */}
+              {modalLoading ? (
+                <div className="p-12 text-center text-[#57534E] flex flex-col items-center justify-center gap-3">
+                  <div className="w-8 h-8 border-3 border-[#B45309] border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm font-medium">Computing XAI Attributions & Interventions...</span>
+                </div>
+              ) : selectedPrediction ? (
+                <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+                  {/* Student Overview Strip */}
+                  <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#F7F5F2] border border-[#E7E5E4]">
+                    <div>
+                      <span className="text-xs text-[#57534E] uppercase tracking-wider font-bold">Student</span>
+                      <h4 className="text-base font-bold text-[#111111]">{selectedPrediction.student_name}</h4>
+                      <p className="text-xs text-[#57534E] font-mono mt-0.5">
+                        {selectedPrediction.roll_number} • {selectedPrediction.department} (Sem {selectedPrediction.semester})
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <span className="text-xs text-[#57534E] font-medium block">Risk Classification</span>
+                        <RiskBadge
+                          riskTier={selectedPrediction.risk_tier}
+                          confidence={selectedPrediction.confidence_score}
+                          size="lg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Academic Snapshot Metrics */}
+                  {selectedPrediction.academic_snapshot && (
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#57534E] mb-2">
+                        Academic Assessment Metrics Snapshot
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                        <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                          <span className="text-[11px] text-[#57534E] block">Attendance</span>
+                          <strong className="text-sm text-[#111111]">
+                            {selectedPrediction.academic_snapshot.attendance_percentage}%
+                          </strong>
+                        </div>
+                        <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                          <span className="text-[11px] text-[#57534E] block">Internal Marks</span>
+                          <strong className="text-sm text-[#111111]">
+                            {selectedPrediction.academic_snapshot.internal_test_marks}/100
+                          </strong>
+                        </div>
+                        <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                          <span className="text-[11px] text-[#57534E] block">Assignment</span>
+                          <strong className="text-sm text-[#111111]">
+                            {selectedPrediction.academic_snapshot.assignment_score}/100
+                          </strong>
+                        </div>
+                        <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF]">
+                          <span className="text-[11px] text-[#57534E] block">Quiz Score</span>
+                          <strong className="text-sm text-[#111111]">
+                            {selectedPrediction.academic_snapshot.quiz_score}/100
+                          </strong>
+                        </div>
+                        <div className="p-2.5 rounded-xl border border-[#E7E5E4] bg-[#FFFFFF] col-span-2 sm:col-span-1">
+                          <span className="text-[11px] text-[#57534E] block">Prior GPA</span>
+                          <strong className="text-sm text-[#111111]">
+                            {selectedPrediction.academic_snapshot.prev_semester_gpa}/10.0
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Feature Importance & Contribution Chart */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#57534E]">
+                        Feature Contribution to Risk Prediction (% Weight)
+                      </h4>
+                      <span className="text-[11px] text-[#57534E]">
+                        Standard Benchmarks: Attendance &ge; 75%, Internals &ge; 50
+                      </span>
+                    </div>
+                    <FeatureImportanceChart factors={selectedPrediction.top_negative_factors} />
+                  </div>
+
+                  {/* Prescriptive Interventions */}
+                  <div className="p-4 rounded-xl bg-amber-50/80 border border-amber-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Lightbulb className="w-4 h-4 text-[#B45309]" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#B45309]">
+                        Tailored Academic Interventions (Faculty Action Plan)
+                      </h4>
+                    </div>
+                    <div className="space-y-2">
+                      {selectedPrediction.actionable_recommendations &&
+                      selectedPrediction.actionable_recommendations.length > 0 ? (
+                        selectedPrediction.actionable_recommendations.map((rec, i) => (
+                          <div key={i} className="flex items-start gap-2.5 text-xs text-[#111111] bg-white p-3 rounded-xl border border-amber-100 shadow-2xs">
+                            <CheckCircle2 className="w-4 h-4 text-[#B45309] flex-shrink-0 mt-0.5" />
+                            <span className="leading-relaxed">{rec}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-[#57534E]">No specific interventions generated.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Modal Footer */}
+              <div className="px-6 py-3.5 bg-[#F7F5F2] border-t border-[#E7E5E4] flex justify-end">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-xs font-bold bg-[#111111] text-white hover:bg-[#222222] rounded-xl transition-colors"
+                >
+                  Close Report
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   User,
   GraduationCap,
@@ -319,160 +320,170 @@ export default function StudentDashboard() {
       )}
 
       {/* Interactive What-If Academic Scenario Simulator */}
-      {showSimulator && (
-        <div className="bg-[#F7F5F2] p-6 rounded-2xl border-2 border-[#B45309]/30 shadow-lg space-y-5 animate-in fade-in duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E7E5E4] pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#B45309] text-white flex items-center justify-center shadow-xs">
-                <Sliders className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-[#111111]">
-                  Interactive "What-If" Academic Goal Simulator
-                </h3>
-                <p className="text-xs text-[#57534E]">
-                  Adjust target metrics to simulate how improved attendance or quiz marks reduce your risk score.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleResetSimulation}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-[#57534E] hover:text-[#111111] bg-white border border-[#E7E5E4] rounded-xl transition-colors"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset to Actuals</span>
-              </button>
-              <button
-                onClick={() => runSimulation()}
-                disabled={simulating}
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] rounded-xl shadow-xs transition-colors disabled:opacity-50"
-              >
-                {simulating ? (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Sparkles className="w-3.5 h-3.5" />
-                )}
-                <span>Run Simulation</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Sliders Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
-                <span>Attendance Target</span>
-                <span className="text-[#B45309]">{simValues.attendance_percentage}%</span>
-              </div>
-              <input
-                type="range"
-                min="30"
-                max="100"
-                step="1"
-                value={simValues.attendance_percentage}
-                onChange={(e) => handleSliderChange('attendance_percentage', e.target.value)}
-                className="w-full accent-[#B45309]"
-              />
-              <span className="text-[10px] text-[#57534E]">Institutional requirement: 75%</span>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
-                <span>Internal Test Marks Target</span>
-                <span className="text-[#B45309]">{simValues.internal_test_marks} / 100</span>
-              </div>
-              <input
-                type="range"
-                min="20"
-                max="100"
-                step="1"
-                value={simValues.internal_test_marks}
-                onChange={(e) => handleSliderChange('internal_test_marks', e.target.value)}
-                className="w-full accent-[#B45309]"
-              />
-              <span className="text-[10px] text-[#57534E]">Passing baseline: 50/100</span>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
-                <span>Assignment Score Target</span>
-                <span className="text-[#B45309]">{simValues.assignment_score} / 100</span>
-              </div>
-              <input
-                type="range"
-                min="20"
-                max="100"
-                step="1"
-                value={simValues.assignment_score}
-                onChange={(e) => handleSliderChange('assignment_score', e.target.value)}
-                className="w-full accent-[#B45309]"
-              />
-              <span className="text-[10px] text-[#57534E]">Continuous coursework</span>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
-                <span>Quiz Performance Target</span>
-                <span className="text-[#B45309]">{simValues.quiz_score} / 100</span>
-              </div>
-              <input
-                type="range"
-                min="20"
-                max="100"
-                step="1"
-                value={simValues.quiz_score}
-                onChange={(e) => handleSliderChange('quiz_score', e.target.value)}
-                className="w-full accent-[#B45309]"
-              />
-              <span className="text-[10px] text-[#57534E]">Periodic module assessments</span>
-            </div>
-          </div>
-
-          {/* Simulation Output Card */}
-          {simResult && (
-            <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] space-y-3 shadow-xs">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#57534E]">
-                    Simulated Performance Standing
-                  </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <RiskBadge
-                      riskTier={simResult.risk_tier}
-                      confidence={simResult.confidence_score}
-                      size="md"
-                    />
-                    <span className="text-xs text-[#57534E]">
-                      Model Confidence: <strong className="text-[#111111]">{Math.round(simResult.confidence_score * 100)}%</strong>
-                    </span>
+      <AnimatePresence>
+        {showSimulator && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, scale: 0.98 }}
+            animate={{ opacity: 1, height: 'auto', scale: 1 }}
+            exit={{ opacity: 0, height: 0, scale: 0.98 }}
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="bg-[#F7F5F2] p-6 rounded-2xl border-2 border-[#B45309]/30 shadow-lg space-y-5 my-1">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E7E5E4] pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#B45309] text-white flex items-center justify-center shadow-xs">
+                    <Sliders className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[#111111]">
+                      Interactive "What-If" Academic Goal Simulator
+                    </h3>
+                    <p className="text-xs text-[#57534E]">
+                      Adjust target metrics to simulate how improved attendance or quiz marks reduce your risk score.
+                    </p>
                   </div>
                 </div>
 
-                <div className="text-right text-xs text-[#57534E]">
-                  <span>Model: </span>
-                  <span className="font-mono text-[#111111] font-bold">{simResult.model_version}</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleResetSimulation}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-[#57534E] hover:text-[#111111] bg-white border border-[#E7E5E4] rounded-xl transition-colors"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset to Actuals</span>
+                  </button>
+                  <button
+                    onClick={() => runSimulation()}
+                    disabled={simulating}
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                  >
+                    {simulating ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-3.5 h-3.5" />
+                    )}
+                    <span>Run Simulation</span>
+                  </button>
                 </div>
               </div>
 
-              {simResult.actionable_recommendations && (
-                <div className="space-y-1.5 pt-2 border-t border-[#E7E5E4]">
-                  <span className="text-[11px] font-bold text-[#111111] block">
-                    Simulated Action Recommendations:
-                  </span>
-                  {simResult.actionable_recommendations.map((rec, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs text-[#57534E]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0 mt-0.5" />
-                      <span>{rec}</span>
+              {/* Sliders Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
+                    <span>Attendance Target</span>
+                    <span className="text-[#B45309]">{simValues.attendance_percentage}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="30"
+                    max="100"
+                    step="1"
+                    value={simValues.attendance_percentage}
+                    onChange={(e) => handleSliderChange('attendance_percentage', e.target.value)}
+                    className="w-full accent-[#B45309]"
+                  />
+                  <span className="text-[10px] text-[#57534E]">Institutional requirement: 75%</span>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
+                    <span>Internal Test Marks Target</span>
+                    <span className="text-[#B45309]">{simValues.internal_test_marks} / 100</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="20"
+                    max="100"
+                    step="1"
+                    value={simValues.internal_test_marks}
+                    onChange={(e) => handleSliderChange('internal_test_marks', e.target.value)}
+                    className="w-full accent-[#B45309]"
+                  />
+                  <span className="text-[10px] text-[#57534E]">Passing baseline: 50/100</span>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
+                    <span>Assignment Score Target</span>
+                    <span className="text-[#B45309]">{simValues.assignment_score} / 100</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="20"
+                    max="100"
+                    step="1"
+                    value={simValues.assignment_score}
+                    onChange={(e) => handleSliderChange('assignment_score', e.target.value)}
+                    className="w-full accent-[#B45309]"
+                  />
+                  <span className="text-[10px] text-[#57534E]">Continuous coursework</span>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-bold text-[#111111] mb-1">
+                    <span>Quiz Performance Target</span>
+                    <span className="text-[#B45309]">{simValues.quiz_score} / 100</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="20"
+                    max="100"
+                    step="1"
+                    value={simValues.quiz_score}
+                    onChange={(e) => handleSliderChange('quiz_score', e.target.value)}
+                    className="w-full accent-[#B45309]"
+                  />
+                  <span className="text-[10px] text-[#57534E]">Periodic module assessments</span>
+                </div>
+              </div>
+
+              {/* Simulation Output Card */}
+              {simResult && (
+                <div className="p-4 rounded-xl bg-[#FFFFFF] border border-[#E7E5E4] space-y-3 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#57534E]">
+                        Simulated Performance Standing
+                      </span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <RiskBadge
+                          riskTier={simResult.risk_tier}
+                          confidence={simResult.confidence_score}
+                          size="md"
+                        />
+                        <span className="text-xs text-[#57534E]">
+                          Model Confidence: <strong className="text-[#111111]">{Math.round(simResult.confidence_score * 100)}%</strong>
+                        </span>
+                      </div>
                     </div>
-                  ))}
+
+                    <div className="text-right text-xs text-[#57534E]">
+                      <span>Model: </span>
+                      <span className="font-mono text-[#111111] font-bold">{simResult.model_version}</span>
+                    </div>
+                  </div>
+
+                  {simResult.actionable_recommendations && (
+                    <div className="space-y-1.5 pt-2 border-t border-[#E7E5E4]">
+                      <span className="text-[11px] font-bold text-[#111111] block">
+                        Simulated Action Recommendations:
+                      </span>
+                      {simResult.actionable_recommendations.map((rec, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs text-[#57534E]">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0 mt-0.5" />
+                          <span>{rec}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Recommended Academic Action Plan */}
       {latest_prediction?.actionable_recommendations && (

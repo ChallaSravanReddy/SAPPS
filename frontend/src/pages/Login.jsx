@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import { GraduationCap, ShieldAlert, Lock, Mail, ArrowRight, Sparkles, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { authApi } from '../services/api';
 
@@ -53,7 +54,6 @@ export default function Login() {
     try {
       const data = await authApi.login(trimmedEmail, cleanPassword);
 
-      // Save token and user details to localStorage
       localStorage.setItem('sapps_token', data.access_token);
       localStorage.setItem(
         'sapps_user',
@@ -67,7 +67,6 @@ export default function Login() {
         })
       );
 
-      // Direct to respective role dashboard
       if (data.role === 'ADMIN') {
         navigate('/admin');
       } else if (data.role === 'FACULTY') {
@@ -96,7 +95,12 @@ export default function Login() {
       {/* Warm Ambient Accents */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-[#F7F5F2] via-[#F7F5F2]/40 to-transparent blur-2xl pointer-events-none" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="sm:mx-auto sm:w-full sm:max-w-md relative z-10"
+      >
         <div className="flex items-center justify-between px-4 mb-4">
           <Link
             to="/"
@@ -110,9 +114,13 @@ export default function Login() {
           </span>
         </div>
         <div className="flex justify-center">
-          <div className="w-14 h-14 rounded-2xl bg-[#B45309] flex items-center justify-center text-white shadow-md shadow-[#B45309]/20">
+          <motion.div
+            whileHover={{ rotate: 10, scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+            className="w-14 h-14 rounded-2xl bg-[#B45309] flex items-center justify-center text-white shadow-md shadow-[#B45309]/20"
+          >
             <GraduationCap className="w-8 h-8" />
-          </div>
+          </motion.div>
         </div>
         <h2 className="mt-4 text-center text-3xl font-extrabold tracking-tight text-[#111111]">
           SAPPS Portal
@@ -120,16 +128,28 @@ export default function Login() {
         <p className="mt-2 text-center text-sm text-[#57534E]">
           Student Academic Performance Prediction & Early Intervention System
         </p>
-      </div>
+      </motion.div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.15 }}
+        className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4"
+      >
         <div className="bg-[#F7F5F2] py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-[#E7E5E4]">
-          {error && (
-            <div className="mb-5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-2.5">
-              <ShieldAlert className="w-5 h-5 flex-shrink-0 text-rose-600" />
-              <span>{error}</span>
-            </div>
-          )}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm flex items-start gap-2.5 overflow-hidden"
+              >
+                <ShieldAlert className="w-5 h-5 flex-shrink-0 text-rose-600 mt-0.5" />
+                <span>{error}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
@@ -146,7 +166,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. faculty@sapp.edu"
-                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-[#E7E5E4] rounded-xl focus:ring-2 focus:ring-[#B45309] focus:border-[#B45309] text-[#111111] bg-[#FFFFFF]"
+                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-[#E7E5E4] rounded-xl focus:ring-2 focus:ring-[#B45309] focus:border-[#B45309] text-[#111111] bg-[#FFFFFF] transition-all"
                 />
               </div>
             </div>
@@ -165,12 +185,14 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-[#E7E5E4] rounded-xl focus:ring-2 focus:ring-[#B45309] focus:border-[#B45309] text-[#111111] bg-[#FFFFFF]"
+                  className="block w-full pl-9 pr-3 py-2.5 text-sm border border-[#E7E5E4] rounded-xl focus:ring-2 focus:ring-[#B45309] focus:border-[#B45309] text-[#111111] bg-[#FFFFFF] transition-all"
                 />
               </div>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
               className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-[#B45309] hover:bg-[#8B5A2B] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[#B45309] transition-all disabled:opacity-50"
@@ -183,7 +205,7 @@ export default function Login() {
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           {/* Quick Demo Credentials Prefill */}
@@ -194,7 +216,9 @@ export default function Login() {
             </p>
             <div className="grid grid-cols-1 gap-2">
               {demoAccounts.map((acc) => (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   key={acc.role}
                   type="button"
                   onClick={() => handleQuickFill(acc)}
@@ -218,12 +242,12 @@ export default function Login() {
                   ) : (
                     <span className="text-[10px] text-[#57534E] font-medium">Use</span>
                   )}
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
